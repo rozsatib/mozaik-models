@@ -84,3 +84,7 @@ def rf_params_from_annotations(data_store, sheet="V1_Exc_L4"):
             rf_params[ids[j]][keys[i]] = v[j]
 
     return rf_params
+
+def dummy_experiment(model):
+    from mozaik.experiments import NoStimulation
+    return [NoStimulation(model, ParameterSet({"duration": 10}))]
