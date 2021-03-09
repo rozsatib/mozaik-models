@@ -6,35 +6,21 @@ from parameters import ParameterSet
 
 
 def create_experiments(model):
-
     return [
-        # Lets kick the network up into activation
-
         # Spontaneous Activity
         NoStimulation(model, ParameterSet(
-            {'duration': 3*8*2*5*3*8*7})),
+        {'duration': 2*5*3*8*7})),
 
-        # Measure orientation tuning with full-filed sinusoidal gratins
-        MeasureOrientationTuningFullfield(model, ParameterSet(
-            {'num_orientations': 10, 'spatial_frequency': 0.8, 'temporal_frequency': 2, 'grating_duration': 2*143*7, 'contrasts': [30, 100], 'num_trials':10})),
+        #RF estimation
+        MeasureSparse(model,ParameterSet({
+           'time_per_image': 70,
+           'blank_time' : 0,
+           'stim_size' : 2.4,
+           'total_number_of_images' : 3000,
+           'num_trials' : 1,
+           'experiment_seed' : 17,
+           'grid_size' : 8,
+           'grid' : True
+        })),
 
-        # Measure response to natural image with simulated eye movement
-        MeasureNaturalImagesWithEyeMovement(model, ParameterSet(
-            {'stimulus_duration': 2*143*7, 'num_trials': 10})),
     ]
-
-
-
-
-def create_experiments_stc(model):
-
-    return [
-
-        # Spontaneous Activity
-        NoStimulation(model, ParameterSet({'duration': 2*5*3*8*7})),
-
-        # Size Tuning
-        MeasureSizeTuning(model, ParameterSet({'num_sizes': 12, 'max_size': 5.0, 'log_spacing': True, 'orientation': 0,
-                                               'spatial_frequency': 0.8, 'temporal_frequency': 2, 'grating_duration': 2*143*7, 'contrasts': [30, 100], 'num_trials': 10})),
-    ]
-
