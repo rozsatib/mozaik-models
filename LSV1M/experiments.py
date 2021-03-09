@@ -4,37 +4,33 @@ from mozaik.experiments.vision import *
 from mozaik.sheets.population_selector import RCRandomPercentage
 from parameters import ParameterSet
 
+CompareSlowVersusFastGaborMotion_default_parameters =  {
+    "duration" : 100,
+    "num_trials": 1,
+    "x": 1,
+    "y": 1,
+    "orientation": 0,
+    "phase": 1,
+    "spatial_frequency": 2,
+    "sigma": 0.17,
+    "n_sigmas": 3.0,
+    "center_relative_luminance": 0.5,
+    "surround_relative_luminance": 0.7,
+    "movement_speeds": [5.0, 180.0],
+#"angles": list(np.linspace(0, 2 * np.pi, 12, endpoint=False)),
+    "angles": [0],
+    "moving_gabor_orientation_radial": True,
+    "radius": 5,
+}
 
-def create_experiments(model):
-
-    return [
-        # Lets kick the network up into activation
-
-        # Spontaneous Activity
-        NoStimulation(model, ParameterSet(
-            {'duration': 3*8*2*5*3*8*7})),
-
-        # Measure orientation tuning with full-filed sinusoidal gratins
-        MeasureOrientationTuningFullfield(model, ParameterSet(
-            {'num_orientations': 10, 'spatial_frequency': 0.8, 'temporal_frequency': 2, 'grating_duration': 2*143*7, 'contrasts': [30, 100], 'num_trials':10})),
-
-        # Measure response to natural image with simulated eye movement
-        MeasureNaturalImagesWithEyeMovement(model, ParameterSet(
-            {'stimulus_duration': 2*143*7, 'num_trials': 10})),
-    ]
-
-
-
-
-def create_experiments_stc(model):
-
-    return [
-
-        # Spontaneous Activity
-        NoStimulation(model, ParameterSet({'duration': 2*5*3*8*7})),
-
-        # Size Tuning
-        MeasureSizeTuning(model, ParameterSet({'num_sizes': 12, 'max_size': 5.0, 'log_spacing': True, 'orientation': 0,
-                                               'spatial_frequency': 0.8, 'temporal_frequency': 2, 'grating_duration': 2*143*7, 'contrasts': [30, 100], 'num_trials': 10})),
-    ]
-
+def create_experiments(model, rf_params):
+    experiments = []
+    for neuron_id in rf_params:
+        params = CompareSlowVersusFastGaborMotion_default_parameters.copy()
+        print(params)
+        print(rf_params[neuron_id])
+        params.update(rf_params[neuron_id])
+        params.pop("aspect_ratio", None)
+        print(params)
+        experiments.append(CompareSlowVersusFastGaborMotion(model, ParameterSet(params)))
+    return experiments
