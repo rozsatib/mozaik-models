@@ -8,7 +8,6 @@ The Journal of neuroscience : the official journal of the Society for Neuroscien
 import matplotlib
 matplotlib.use('Agg')
 
-from mpi4py import MPI
 from mozaik.storage.datastore import Hdf5DataStore, PickledDataStore
 from parameters import ParameterSet
 from analysis_and_visualization import perform_analysis_and_visualization
@@ -19,9 +18,6 @@ from mozaik.controller import run_workflow, setup_logging
 import mozaik.controller
 import sys
 from pyNN import nest
-
-
-mpi_comm = MPI.COMM_WORLD
 
 
 if True:
@@ -64,6 +60,5 @@ else:
     data_store = PickledDataStore(load=True, parameters=ParameterSet(
         {'root_directory': 'SelfSustainedPushPull_test____', 'store_stimuli': False}), replace=True)
 
-if mpi_comm.rank == 0:
-    print("Starting visualization")
-    perform_analysis_and_visualization(data_store)
+print("Starting visualization")
+perform_analysis_and_visualization(data_store)
