@@ -2,14 +2,13 @@
 import matplotlib
 matplotlib.use('Agg')
 
-from mpi4py import MPI
 from mozaik.storage.datastore import Hdf5DataStore, PickledDataStore
 from parameters import ParameterSet
 from analysis_and_visualization import perform_analysis_and_visualization
 from model import SelfSustainedPushPull
 from experiments import create_experiments
 import mozaik
-from mozaik.controller import run_workflow, setup_logging
+from mozaik.controller import prepare_workflow, run_experiments, setup_logging
 import mozaik.controller
 import sys
 from pyNN import nest
@@ -21,7 +20,7 @@ simulation_name = "SelfSustainedPushPull"
 
 if True:
     sim, num_threads, parameters = prepare_workflow(simulation_name, model_class)
-    model = create_model(model_class, sim, num_threads, parameters)
+    model = model_class(sim,num_threads,parameters)
     dummy_data_store = run_experiments(model, dummy_experiment(model), parameters)
     rf_params = rf_params_from_annotations(dummy_data_store)
     data_store = run_experiments(
