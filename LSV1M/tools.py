@@ -47,7 +47,7 @@ def rf_params_from_annotations(data_store, sheet="V1_Exc_L4"):
         "orientation",
         "aspect_ratio",
         "spatial_frequency",
-        "size",
+        "sigma",
         "phase",
         "x",
         "y",
