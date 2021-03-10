@@ -9,6 +9,7 @@ from model import SelfSustainedPushPull
 from experiments import create_experiments
 import mozaik
 from mozaik.controller import prepare_workflow, run_experiments, setup_logging
+from tools import dummy_experiment, rf_params_from_annotations
 import mozaik.controller
 import sys
 from pyNN import nest

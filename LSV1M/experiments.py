@@ -1,11 +1,11 @@
 #!/usr/local/bin/ipython -i
 from mozaik.experiments import *
 from mozaik.experiments.vision import *
+from mozaik.experiments.apparent_motion import *
 from mozaik.sheets.population_selector import RCRandomPercentage
 from parameters import ParameterSet
 
 CompareSlowVersusFastGaborMotion_default_parameters =  {
-    "duration" : 100,
     "num_trials": 1,
     "x": 1,
     "y": 1,
