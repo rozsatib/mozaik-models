@@ -3,6 +3,7 @@ from mozaik.experiments import *
 from mozaik.experiments.vision import *
 from mozaik.sheets.population_selector import RCRandomPercentage
 from parameters import ParameterSet
+import numpy as np
 
 
 def sparse_noise_experiments(model):
@@ -33,8 +34,20 @@ def sparse_noise_experiments(model):
 
 
 def ideal_gabor_experiments(model, rf_params):
-    return [
-        #MeasureIdealGabor(model,ParameterSet({})) 
-        NoStimulation(model, ParameterSet(
-        {'duration': 10})),
-    ]
+    stims = []
+    for neuron_id in rf_params:
+        stims.append(
+            FindIdealGabor(model,ParameterSet({
+                "relative_luminance": 1.0,
+                "orientations": list(np.linspace(0,np.pi,6,endpoint=False)),
+                "phases": list(np.linspace(0,np.pi*2,4,endpoint=False)),
+                "spatial_frequencies": list(np.linspace(0.9,4.9,5)),
+                "diameter": rf_params[neuron_id]["Receptive Field diameter"],
+                "flash_duration": 40,
+                "x": rf_params[neuron_id]["Receptive Field x"],
+                "y": rf_params[neuron_id]["Receptive Field y"],
+                "num_trials": 1,
+                "duration" : 40,
+            }
+        ))
+        )
