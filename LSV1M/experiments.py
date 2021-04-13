@@ -47,8 +47,9 @@ def ideal_gabor_experiments(model, rf_params):
                 "flash_duration": 40,
                 "x": rf_params[neuron_id]["Receptive Field x"],
                 "y": rf_params[neuron_id]["Receptive Field y"],
-                "num_trials": 1,
+                "num_trials": 30,
                 "duration" : 40,
+                "neuron_id" : neuron_id,
             }
         ))
         )

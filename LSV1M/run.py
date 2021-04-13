@@ -21,7 +21,8 @@ simulation_name = "SelfSustainedPushPull"
 if True:
     #sparse_noise_data_store = run_experiments(model, sparse_noise_experiments(model), parameters)
     #sparse_noise_data_store.save()
-    root = '20210328-182636[param.defaults]CombinationParamSearch{trial:[1]}/SelfSustainedPushPull_ParameterSearch_____trial:1'
+    root = '20210406-205715[param.defaults]CombinationParamSearch{trial:[1]}/SelfSustainedPushPull_ParameterSearch_____trial:1'
+
     #Global.root_directory = root+'/'
     sparse_noise_data_store = PickledDataStore(load=True, parameters=ParameterSet(
         {'root_directory': root, 'store_stimuli': False}), replace=True)
