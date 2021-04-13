@@ -7,7 +7,7 @@ import numpy as np
 
 
 def sparse_noise_experiments(model):
-    fast = True
+    fast = False
     cell_size = 0.3 
     grid_size = 2.0 if fast else 12.0
     im_per_px = 1 if fast else 30
@@ -36,6 +36,7 @@ def sparse_noise_experiments(model):
 def ideal_gabor_experiments(model, rf_params):
     stims = []
     for neuron_id in rf_params:
+        print("Neuron %d, x: %.2f, y: %.2f, diameter: %.2f" % (neuron_id, rf_params[neuron_id]["Receptive Field x"], rf_params[neuron_id]["Receptive Field y"], rf_params[neuron_id]["Receptive Field diameter"]))
         stims.append(
             FindIdealGabor(model,ParameterSet({
                 "relative_luminance": 1.0,
@@ -51,3 +52,4 @@ def ideal_gabor_experiments(model, rf_params):
             }
         ))
         )
+    return stims

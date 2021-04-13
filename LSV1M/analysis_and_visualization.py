@@ -307,6 +307,7 @@ def save_RF_params_to_datastore(datastore, neuron_params, sheet):
                         value_name='Receptive Field diameter',
                         sheet_name=sheet,
                         period=None))
+    datastore.save()
 
 def get_sparse_noise_params(data_store):
     return load_parameters(param_filter_query(data_store,st_name='SparseNoise').get_stimuli()[0],{})
@@ -351,7 +352,7 @@ def load_RF_params_from_datastore(data_store,sheet):
             rf_params[n_id]=param_vals
         except ValueError: # Skip neuron ids with no saved RFs
             continue
-            
+
     return rf_params
 
 
