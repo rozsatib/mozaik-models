@@ -3,7 +3,7 @@ import sys
 from mozaik.meta_workflow.parameter_search import CombinationParameterSearch,SlurmSequentialBackend
 import numpy
 import time
-slurm_options = ['-J model']
+slurm_options = ['-J sparse_noise']
 
 if True:
     CombinationParameterSearch(SlurmSequentialBackend(

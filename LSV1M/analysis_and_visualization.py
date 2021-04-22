@@ -262,9 +262,9 @@ def remove_extreme_neurons(neuron_params,xlim,ylim,dlim):
     out = {}
     for n_id, params in neuron_params.items():
         if \
-        params["x"] >= xlim[0] and params["x"] <= xlim[1] and \
-        params["y"] >= ylim[0] and params["y"] <= ylim[1] and \
-        params["diameter"] >= dlim[0] and params["diameter"] <= dlim[1]:
+        params["Receptive Field x"] >= xlim[0] and params["Receptive Field x"] <= xlim[1] and \
+        params["Receptive Field y"] >= ylim[0] and params["Receptive Field y"] <= ylim[1] and \
+        params["Receptive Field diameter"] >= dlim[0] and params["Receptive Field diameter"] <= dlim[1]:
             out[n_id] = params.copy()
     return out
 
@@ -277,11 +277,11 @@ def save_RF_params_to_datastore(datastore, neuron_params, sheet):
     diameter = []
     for n_id in neuron_params: 
         ids.append(n_id)
-        RFs.append(neuron_params[n_id]["RF"])
-        RFs_masked.append(neuron_params[n_id]["RF_masked"])
-        x.append(neuron_params[n_id]["x"])
-        y.append(neuron_params[n_id]["y"])
-        diameter.append(neuron_params[n_id]["diameter"])   
+        RFs.append(neuron_params[n_id]['Receptive Field'])
+        RFs_masked.append(neuron_params[n_id]['Masked Receptive Field'])
+        x.append(neuron_params[n_id]['Receptive Field x'])
+        y.append(neuron_params[n_id]['Receptive Field y'])
+        diameter.append(neuron_params[n_id]['Receptive Field diameter'])
     datastore.full_datastore.add_analysis_result(
         PerNeuronValue(RFs, ids, None,
                         value_name='Receptive Field',
@@ -307,7 +307,6 @@ def save_RF_params_to_datastore(datastore, neuron_params, sheet):
                         value_name='Receptive Field diameter',
                         sheet_name=sheet,
                         period=None))
-    datastore.save()
 
 def get_sparse_noise_params(data_store):
     return load_parameters(param_filter_query(data_store,st_name='SparseNoise').get_stimuli()[0],{})
@@ -330,18 +329,12 @@ def sparse_noise_response_data(data_store,sheet):
 
 def load_RF_params_from_datastore(data_store,sheet):
     param_names = ['Receptive Field','Masked Receptive Field','Receptive Field x','Receptive Field y','Receptive Field diameter']
-    
-    ids = list( 
-        param_filter_query(data_store, sheet_name=sheet)
-        .get_segments()[0]
-        .get_stored_esyn_ids()
-    )   
     results = data_store.get_analysis_result(
         identifier="PerNeuronValue",
         value_name=param_names,
         sheet_name=sheet,
     )
-    
+    ids = results[0].ids
     rf_params = {}
     for n_id in ids:
         try:
@@ -362,7 +355,7 @@ def find_RF_params(data_store,sheets):
     # So I need to replace PyNNDistribution calls with None
     model_params_str = re.sub(r'PyNNDistribution\(.*\)', 'None', data_store.get_model_parameters())
     model_params = load_parameters(model_params_str,{})
-    min_RF_size, max_RF_size = 1.5, model_params["visual_field"]["size"][0]
+    min_RF_size, max_RF_size = 1.5, 3.0
     max_response_delay = 80
     x_min, x_max, y_min, y_max = -1,1,-1,1
     p_value = 0.01
@@ -386,8 +379,11 @@ def find_RF_params(data_store,sheets):
         for i in range(len(RFs)):
             diameter, x, y = get_size_and_coords(RFs_masked[i])
             diameter_real, x_real, y_real = transform_to_real_coords(RFs_masked[i],diameter,x,y)
-            calculated_neuron_params[neuron_ids[i]] = {"x" : x_real, "y" : y_real, "diameter" : diameter_real,
-                                                       "RF" : RFs[i], "RF_masked" : RFs_masked[i]}        
+            calculated_neuron_params[neuron_ids[i]] = {'Receptive Field x' : x_real,
+                                                       'Receptive Field y' : y_real,
+                                                       'Receptive Field diameter' : diameter_real,
+                                                       'Receptive Field' : RFs[i],
+                                                       'Masked Receptive Field' : RFs_masked[i]}
 
         nparams_2 = remove_extreme_neurons(calculated_neuron_params,[x_min,x_max],[y_min,y_max],
                                            [min_RF_size,max_RF_size])
