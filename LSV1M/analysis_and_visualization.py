@@ -9,10 +9,12 @@ from mozaik.analysis.vision import *
 from mozaik.storage.queries import *
 from mozaik.storage.datastore import PickledDataStore
 from mozaik.controller import Global
-from visualization_functions import *
 
+import numpy as np
+import re
 import ast
 import matplotlib.pyplot as plt
+import matplotlib.ticker as plticker
 import warnings
 warnings.filterwarnings('ignore')
 from scipy import signal
@@ -249,14 +251,19 @@ def get_size_and_coords(RF):
         diameter = 4*sigma
     return diameter,x,y
 
-def transform_to_real_coords(RF,diameter,x,y):
-    stim_size = 3.6
-    grid_size = 12
-    xlen, ylen = RF.shape    
-    x_real = (x-xlen/2 - np.sign(x-xlen/2) * 0.5) * (stim_size/grid_size)
-    y_real = -(y-ylen/2 - np.sign(y-ylen/2) * 0.5) * (stim_size/grid_size)
-    diameter_real = diameter * (stim_size/grid_size)
+def transform_to_real_coords(RF,diameter,x,y,rf_px_size):
+    xlen, ylen = RF.shape
+    x_real = (x-xlen/2 + 0.5) * rf_px_size
+    y_real = -(y-ylen/2 + 0.5) * rf_px_size
+    diameter_real = diameter * rf_px_size
     return diameter_real, x_real, y_real
+
+def transform_to_img_coords(RF,diameter,x,y,rf_px_size):
+    x_len, y_len = RF.shape
+    x_img = x_len/2 - 0.5 + x / rf_px_size
+    y_img = y_len/2 - 0.5 - y / rf_px_size
+    diameter_img = diameter / rf_px_size
+    return diameter_img, x_img, y_img
 
 def remove_extreme_neurons(neuron_params,xlim,ylim,dlim):
     out = {}
@@ -349,7 +356,7 @@ def load_RF_params_from_datastore(data_store,sheet):
     return rf_params
 
 
-def find_RF_params(data_store,sheets):
+def find_RF_params(data_store,sheets,output_data_store):
     measure_sparse_params = get_sparse_noise_params(data_store)
     # PyNNDistribution calls MPI for some reason, which crashes the program on MFF CSNG cluster
     # So I need to replace PyNNDistribution calls with None
@@ -378,7 +385,8 @@ def find_RF_params(data_store,sheets):
         calculated_neuron_params = {}
         for i in range(len(RFs)):
             diameter, x, y = get_size_and_coords(RFs_masked[i])
-            diameter_real, x_real, y_real = transform_to_real_coords(RFs_masked[i],diameter,x,y)
+            diameter_real, x_real, y_real = transform_to_real_coords(RFs_masked[i],diameter,x,y,
+                                                                     measure_sparse_params["size_x"]/measure_sparse_params["grid_size"])
             calculated_neuron_params[neuron_ids[i]] = {'Receptive Field x' : x_real,
                                                        'Receptive Field y' : y_real,
                                                        'Receptive Field diameter' : diameter_real,
@@ -387,4 +395,33 @@ def find_RF_params(data_store,sheets):
 
         nparams_2 = remove_extreme_neurons(calculated_neuron_params,[x_min,x_max],[y_min,y_max],
                                            [min_RF_size,max_RF_size])
-        save_RF_params_to_datastore(data_store,nparams_2,sheet)
+        save_RF_params_to_datastore(output_data_store,nparams_2,sheet)
+
+    # Save RF pixel size to output datastore
+    output_data_store.full_datastore.add_analysis_result(
+        SingleValue(value=measure_sparse_params["size_x"]/measure_sparse_params["grid_size"],
+                    value_name='Receptive Field pixel size',
+                    period=None))
+
+
+def save_rf_plots(rf_params,dir_path,rf_px_size):
+    os.makedirs(dir_path + "/RF")
+    os.makedirs(dir_path + "/RF_masked")
+    for neuron in rf_params:
+        RF = rf_params[neuron]['Receptive Field']
+        RF_masked = rf_params[neuron]['Masked Receptive Field']
+        xlim, ylim = RF.shape[0]/2*rf_px_size, RF.shape[1]/2*rf_px_size
+        extent = [-xlim,xlim,-ylim,ylim]
+        loc = plticker.MultipleLocator(base=2*rf_px_size)
+        plt.cla()
+        plt.gca().xaxis.set_major_locator(loc)
+        plt.gca().yaxis.set_major_locator(loc)
+
+        plt.imshow(RF,extent=extent)
+        plt.savefig(dir_path + "/RF/" + str(neuron) + ".png")
+
+        plt.imshow(RF_masked,extent=extent)
+        circ = plt.Circle((rf_params[neuron]['Receptive Field x'], rf_params[neuron]['Receptive Field y']),
+                           rf_params[neuron]['Receptive Field diameter']/2.0, fill=False, color='r')
+        plt.gca().add_artist(circ)
+        plt.savefig(dir_path + "/RF_masked/" + str(neuron) + ".png")
