@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from model import SelfSustainedPushPull
-from experiments import sparse_noise_experiments
+from experiments import *
 import mozaik
 from mozaik.controller import prepare_workflow, run_experiments, setup_logging
 import mozaik.controller
@@ -14,5 +14,5 @@ simulation_name = "SelfSustainedPushPull"
 
 sim, num_threads, parameters = prepare_workflow(simulation_name, model_class)
 model = model_class(sim,num_threads,parameters)
-sparse_noise_data_store = run_experiments(model, sparse_noise_experiments(model), parameters)
-sparse_noise_data_store.save()
+data_store = run_experiments(model, continuous_am_comparison_experiments(model), parameters)
+data_store.save()
