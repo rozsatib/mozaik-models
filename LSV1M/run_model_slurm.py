@@ -3,7 +3,7 @@ import sys
 from mozaik.meta_workflow.parameter_search import CombinationParameterSearch,SlurmSequentialBackend
 import numpy
 import time
-slurm_options = ['-J 0compare_am_cont']
+slurm_options = ['-J 0am_configs']
 
 if True:
     CombinationParameterSearch(SlurmSequentialBackend(
