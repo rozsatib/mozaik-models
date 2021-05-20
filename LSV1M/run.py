@@ -22,7 +22,7 @@ rf_data_store_path = "/home/rozsa/dev/sparse_noise/VF15_42/measure_rf_analysis_r
 
 sim, num_threads, parameters = prepare_workflow(simulation_name, model_class)
 model = model_class(sim,num_threads,parameters)
-logger.info("Bla")
+
 rf_data_store = PickledDataStore(load=True,parameters=ParameterSet(
     {'root_directory': rf_data_store_path, 'store_stimuli': False}), replace=False)
 
@@ -46,5 +46,5 @@ rf_params = {}
 for sheet in sheets:
     rf_params.update(load_RF_params_from_datastore(rf_data_store,sheet,rf_param_names))
 
-data_store = run_experiments(model, continuous_am_comparison_experiments(model, rf_params), parameters)
+data_store = run_experiments(model, measure_flash_duration_experiments(model, rf_params), parameters)
 data_store.save()
