@@ -1,5 +1,6 @@
 from mozaik.storage.queries import *
-from mozaik.analysis.technical import NeuronAnnotationsToPerNeuronValues
+from mozaik.analysis.data_structures import PerNeuronValue
+import sys
 
 def rf_params_from_annotations(data_store, sheet="V1_Exc_L4"):
     """
@@ -24,67 +25,38 @@ def rf_params_from_annotations(data_store, sheet="V1_Exc_L4"):
                 Dictionary, where the keys are neuron ids for the given neuron sheet,
                 and values are dictionaries of parameters, which are in the form of
                 rf_parameter_name = parameter_value.
-                Example: { 1 : { "orientation" : 1.57079632679, "size" : 2 } }
+                Example: { 1 : { "LGNAfferentOrientation" : 1.57079632679, "size" : 2 } }
     """
 
-    assert sheet in data_store.sheets(), (
-        sheet
-        + " is not one of the sheets of the model, which are: "
-        + str(data_store.sheets())
-    )
-
-    annotations = [
-        "LGNAfferentOrientation",
-        "LGNAfferentAspectRatio",
-        "LGNAfferentFrequency",
-        "LGNAfferentSize",
-        "LGNAfferentPhase",
-        "LGNAfferentX",
-        "LGNAfferentY",
-    ]
-
-    keys = [
-        "orientation",
-        "aspect_ratio",
-        "spatial_frequency",
-        "sigma",
-        "phase",
-        "x",
-        "y",
-    ]
-
-    NeuronAnnotationsToPerNeuronValues(data_store, ParameterSet({})).analyse()
-
-    analog_ids = (
-        param_filter_query(data_store, sheet_name=sheet)
-        .get_segments()[0]
-        .get_stored_esyn_ids()
-    )
-    spike_ids = (
-        param_filter_query(data_store, sheet_name=sheet)
-        .get_segments()[0]
-        .get_stored_spike_train_ids()
-    )
-
-    ids = list(set(spike_ids) & set(analog_ids))
-
-    rf_params = {id_: {} for id_ in ids}
-    for i in range(len(annotations)):
-        res = data_store.get_analysis_result(
+def save_rf_params(data_store, rf_params, sheet, only_existing=True):
+    if only_existing:
+        results = data_store.get_analysis_result(
             identifier="PerNeuronValue",
-            value_name=annotations[i],
             sheet_name=sheet,
         )
+        if len(results) == 0:
+            print("Error: No overlap between data store neurons and RF param neurons", file=sys.stderr)
+            exit(1)
+        neurons = list(set(results[0].ids) & set(rf_params.keys()))
+    else:
+        neurons = list(rf_params.keys())
 
-        if len(res) == 0:
-            continue
+    annotations = list(rf_params[neurons[0]].keys())
+    data = [[] for a in annotations]
 
-        v = res[0].get_value_by_id(ids)
-        for j in range(len(v)):
-            rf_params[ids[j]][keys[i]] = v[j]
+    for i in range(len(annotations)):
+        for n_id in neurons:
+            data[i].append(rf_params[n_id][annotations[i]])
 
-    return rf_params
+    for i in range(len(annotations)):
+        data_store.full_datastore.add_analysis_result(
+            PerNeuronValue(
+                data[i], neurons, None, value_name=annotations[i], sheet_name=sheet, period=None
+            )
+        )
+
 
 def dummy_experiment(model):
     from mozaik.experiments import NoStimulation
+
     return [NoStimulation(model, ParameterSet({"duration": 10}))]

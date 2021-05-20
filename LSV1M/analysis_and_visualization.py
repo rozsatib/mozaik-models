@@ -113,7 +113,7 @@ class ExportStimulusResponseData(Analysis):
             logger.info(numpy.shape(stims))
 
             # check if the inputs are the same within each period 
-            #for i in xrange(0,int(self.parameters.period/frame_duration)):
+            #for i in range(0,int(self.parameters.period/frame_duration)):
             #    assert numpy.all(stims[:,0,:,:]==stims[:,i,:,:])
             # remove the same stimuli by averaging over them
             stims = numpy.mean(stims[:,:2,:],axis=1)
@@ -134,8 +134,8 @@ def crop_and_resize_stim(stim, visual_field_size, visual_field_spatial_resolutio
 def RF_distribution(n_samples,pos,neg,signal_averaged,latency,period):
     stim_d0, stim_d1 = pos.shape
     distr = np.zeros((n_samples,stim_d0,stim_d1))
-    for d0 in xrange(stim_d0): # stim_d0
-        for d1 in xrange(stim_d1): #stim_d1
+    for d0 in range(stim_d0): # stim_d0
+        for d1 in range(stim_d1): #stim_d1
             p = int(pos[d0,d1])
             n = int(-neg[d0,d1])
             a = p+n
@@ -145,11 +145,11 @@ def RF_distribution(n_samples,pos,neg,signal_averaged,latency,period):
             while remaining_samples > 0:
                 s_sh = s.copy()
                 np.random.shuffle(s_sh)
-                s_sh = s_sh[0:len(s)/a]
-                ss.append(s_sh)           
-                remaining_samples -= len(s)/a
+                s_sh = s_sh[0:int(len(s)/a)]
+                ss.append(s_sh)
+                remaining_samples -= int(len(s)/a)
             ss = np.array(ss).flatten()[0:n_samples*a]
-            ss = ss.reshape(-1,a)
+            ss = ss.reshape((-1,a))
             mpos = ss[:,:p].mean(axis=1)
             mneg = ss[:,p:].mean(axis=1)
             distr[:,d0,d1] = mpos - mneg
@@ -159,7 +159,7 @@ def calculate_RFs(stims,raw_signals,background_luminance,max_delay):
     rescaled_stims = (stims-background_luminance)/background_luminance
     pos = rescaled_stims[0]*0
     neg = rescaled_stims[0]*0
-    for i in xrange(rescaled_stims.shape[0]):
+    for i in range(rescaled_stims.shape[0]):
         pos += numpy.clip(rescaled_stims[i],a_min=0,a_max=None)
         neg += numpy.clip(rescaled_stims[i],a_max=0,a_min=None)
     
@@ -195,8 +195,8 @@ def calculate_RFs(stims,raw_signals,background_luminance,max_delay):
         all_RF = np.nan_to_num(all_RF)
 
         best_RF = np.zeros(rescaled_stims[0].shape)
-        for d0 in xrange(stim_d0):
-            for d1 in xrange(stim_d1):
+        for d0 in range(stim_d0):
+            for d1 in range(stim_d1):
                 best_RF[d0,d1] = max(all_RF[:,d0,d1],key=abs)
         latency = np.argmax(abs(all_RF),axis=0)
 
@@ -238,14 +238,14 @@ def fitgaussian(data):
 def get_size_and_coords(RF):   
     mode = "GAUSS_FIT"
     
-    if mode is "MAX":
+    if mode == "MAX":
         # Get absolute maximum index
         id_1d = np.abs(RF).argmax()
         y,x = np.unravel_index(id_1d, RFs[0].shape)
         #print(y,x)
         diameter = get_diameter(RF, x, y)       
 
-    elif mode is "GAUSS_FIT":
+    elif mode == "GAUSS_FIT":
         height,y,x,sigma = fitgaussian(np.abs(RF))
         #print(height,x,y,sigma)
         diameter = 4*sigma
@@ -334,8 +334,7 @@ def sparse_noise_response_data(data_store,sheet):
     _,raw_signals,stims = ExportStimulusResponseData(dsv,ParameterSet(srd_params)).perform_analysis()
     return raw_signals, stims, analog_ids
 
-def load_RF_params_from_datastore(data_store,sheet):
-    param_names = ['Receptive Field','Masked Receptive Field','Receptive Field x','Receptive Field y','Receptive Field diameter']
+def load_RF_params_from_datastore(data_store,sheet, param_names):
     results = data_store.get_analysis_result(
         identifier="PerNeuronValue",
         value_name=param_names,
@@ -347,12 +346,11 @@ def load_RF_params_from_datastore(data_store,sheet):
         try:
             v = [None] * len(results)
             param_vals = {}
-            for i in range(len(results)):
-                param_vals[param_names[i]] = results[i].get_value_by_id(n_id)  
+            for result in results:
+                param_vals[result.value_name] = result.get_value_by_id(n_id)
             rf_params[n_id]=param_vals
         except ValueError: # Skip neuron ids with no saved RFs
             continue
-
     return rf_params
 
 
