@@ -8,10 +8,9 @@ import numpy as np
 import mozaik
 logger = mozaik.getMozaikLogger()
 
-def continuous_am_comparison_experiments(model):
+def continuous_am_comparison_experiments(model, rf_params):
 
     experiments = [NoStimulation(model, ParameterSet({'duration': 100}))]
-    orientations = np.linspace(0, np.pi, 6, endpoint=False)
     params = {
         "num_trials": 30,
         "x": 0,
@@ -28,8 +27,19 @@ def continuous_am_comparison_experiments(model):
         "moving_gabor_orientation_radial": True,
         "n_circles": 2,
     }
-    for orientation in orientations:
-        params["orientation"]=orientation
+
+    for neuron_id in rf_params:
+        p = rf_params[neuron_id]
+        neuron_params = {
+            "x": p["Receptive Field x"],
+            "y": p["Receptive Field y"],
+            "orientation": p["LGNAfferentOrientation"],
+            "phase": p["LGNAfferentPhase"],
+            "spatial_frequency": p["LGNAfferentFrequency"],
+            "sigma": p["Receptive Field diameter"] / 6.0,
+            "neuron_id" : neuron_id,
+        }
+        params.update(neuron_params)
         experiments.append(CompareSlowVersusFastGaborMotion(model,ParameterSet(params)))
         params2 = params.copy()
         params2["moving_gabor_orientation_radial"]=False
