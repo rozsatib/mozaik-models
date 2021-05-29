@@ -10,17 +10,19 @@ logger = mozaik.getMozaikLogger()
 def sparse_noise_experiments(model):
     fast = False
     cell_size = 0.3 
-    grid_size = 14.0
-    img_per_px = 50 if not fast else 1
+    grid_size = 20.0
+    img_per_px = 25 if not fast else 1
     img_total = grid_size * grid_size * img_per_px
-    max_im = 2500 if not fast else 10
+    max_im = 500 if not fast else 10
     n = int(np.ceil(img_total/max_im))
-    initial_experiment_seed = 17
+    initial_experiment_seed = 117
 
     experiments = [NoStimulation(model, ParameterSet({'duration': 100}))]
 
     for i in range(n):
         n_imgs = max_im if i < n-1 else img_total % max_im
+        if n_imgs == 0:
+            continue
         logger.info("Number of images: %d" % n_imgs)
         #RF estimation
         experiments.append(MeasureSparse(model,ParameterSet({

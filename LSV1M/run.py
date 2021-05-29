@@ -1,4 +1,7 @@
 # -*- coding: utf-8 -*-
+import matplotlib
+
+matplotlib.use("Agg")
 from model import SelfSustainedPushPull
 from experiments import sparse_noise_experiments
 import mozaik
