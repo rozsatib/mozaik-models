@@ -7,11 +7,11 @@ from mozaik.meta_workflow.parameter_search import (
 import numpy
 import time
 
-slurm_options = ["-J 1130sparse_noise", "-w w3", "--mem=64gb", "--hint=nomultithread"]
+slurm_options = ["-J 16_largemodel", "-w w6", "--mem=120gb", "--hint=nomultithread"]
 
 CombinationParameterSearch(
     SlurmSequentialBackend(
-        num_threads=16,
+        num_threads=32,
         num_mpi=1,
         path_to_mozaik_env="/home/rozsa/virt_env/mozaik/bin/activate",
         slurm_options=slurm_options,
