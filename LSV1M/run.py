@@ -19,46 +19,6 @@ import mozaik.controller
 import sys
 from pyNN import nest
 
-
-if True:
-    data_store, model = run_workflow(
-        'SelfSustainedPushPull', SelfSustainedPushPull, create_experiments)
-    if False:
-        model.connectors['V1AffConnectionOn'].store_connections(data_store)
-        model.connectors['V1AffConnectionOff'].store_connections(data_store)
-        model.connectors['V1AffInhConnectionOn'].store_connections(data_store)
-        model.connectors['V1AffInhConnectionOff'].store_connections(data_store)
-        model.connectors['V1L4ExcL4ExcConnection'].store_connections(
-            data_store)
-        model.connectors['V1L4ExcL4InhConnection'].store_connections(
-            data_store)
-        model.connectors['V1L4InhL4ExcConnection'].store_connections(
-            data_store)
-        model.connectors['V1L4InhL4InhConnection'].store_connections(
-            data_store)
-        model.connectors['V1L4ExcL4ExcConnectionRand'].store_connections(
-            data_store)
-        model.connectors['V1L4ExcL4InhConnectionRand'].store_connections(
-            data_store)
-        model.connectors['V1L4InhL4ExcConnectionRand'].store_connections(
-            data_store)
-        model.connectors['V1L4InhL4InhConnectionRand'].store_connections(
-            data_store)
-        model.connectors['V1L23ExcL23ExcConnection'].store_connections(
-            data_store)
-        model.connectors['V1L23ExcL23InhConnection'].store_connections(
-            data_store)
-        model.connectors['V1L23InhL23ExcConnection'].store_connections(
-            data_store)
-        model.connectors['V1L23InhL23InhConnection'].store_connections(
-            data_store)
-        model.connectors['L4ExcL23ExcConnection'].store_connections(data_store)
-        model.connectors['L4ExcL23InhConnection'].store_connections(data_store)
-    data_store.save()
-else:
-    setup_logging()
-    data_store = PickledDataStore(load=True, parameters=ParameterSet(
-        {'root_directory': 'SelfSustainedPushPull_test____', 'store_stimuli': False}), replace=True)
-
-print("Starting visualization")
-perform_analysis_and_visualization(data_store)
+data_store, model = run_workflow(
+    'SelfSustainedPushPull', SelfSustainedPushPull, create_experiments)
+data_store.save()
