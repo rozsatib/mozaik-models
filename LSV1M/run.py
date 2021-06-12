@@ -8,6 +8,7 @@ The Journal of neuroscience : the official journal of the Society for Neuroscien
 import matplotlib
 matplotlib.use('Agg')
 
+from mpi4py import MPI
 from mozaik.storage.datastore import Hdf5DataStore, PickledDataStore
 from parameters import ParameterSet
 from analysis_and_visualization import perform_analysis_and_visualization
