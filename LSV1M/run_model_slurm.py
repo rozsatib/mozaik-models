@@ -7,7 +7,7 @@ from mozaik.meta_workflow.parameter_search import (
 import numpy
 import time
 
-slurm_options = ["-J 16_largemodel", "-w w6", "--mem=120gb", "--hint=nomultithread"]
+slurm_options = ["-J 12.5_largemodel", "-w w6", "--mem=120gb", "--hint=nomultithread"]
 
 CombinationParameterSearch(
     SlurmSequentialBackend(
