@@ -142,7 +142,7 @@
             'topological' : True,
 	    
             'or_map' : True,
-	    'or_map_location' : './or_map_new_6x6',
+	    'or_map_location' : './or_map_12.5x12.5',
             'phase_map' : False,
             'phase_map_location' : './phase_map',
 	    'rf_jitter' : 0,
