@@ -3,9 +3,9 @@
     'component': 'mozaik.sheets.vision.VisualCorticalUniformSheet',
     'params':{
                 'name':'V1_Exc_L4',
-                'sx':4000.0,
+                'sx':12500.0,
                 'sy':ref('sheets.l4_cortex_exc.params.sx'),
-                'density': 1500.0,
+                'density': 1200.0,
                 'mpi_safe' : False,    
                 'magnification_factor': 1000.0,
                     
@@ -142,7 +142,7 @@
             'topological' : True,
 	    
             'or_map' : True,
-	    'or_map_location' : './or_map_new_6x6',
+	    'or_map_location' : './or_map_12.5x12.5',
             'phase_map' : False,
             'phase_map_location' : './phase_map',
 	    'rf_jitter' : 0,
