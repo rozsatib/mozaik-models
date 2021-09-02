@@ -13,7 +13,7 @@ from mozaik.storage.datastore import Hdf5DataStore, PickledDataStore
 from parameters import ParameterSet
 from analysis_and_visualization import perform_analysis_and_visualization
 from model import SelfSustainedPushPull
-from experiments import create_experiments
+from experiments import *
 import mozaik
 from mozaik.controller import run_workflow, setup_logging
 import mozaik.controller
@@ -23,3 +23,5 @@ from pyNN import nest
 data_store, model = run_workflow(
     'SelfSustainedPushPull', SelfSustainedPushPull, create_experiments)
 data_store.save()
+
+perform_analysis_and_visualization(data_store)

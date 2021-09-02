@@ -57,6 +57,7 @@
 	'num_samples' : ref('sheets.l4_cortex_inh.L4InhL4InhConnection.num_samples'),
     },
 
+   'L4ExcL23InhAfferentRatio' : 0.8,
    'L4ExcL23InhConnection': {
         'target_synapses' : 'excitatory',             
         'short_term_plasticity':  ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.short_term_plasticity'),
@@ -81,8 +82,7 @@
         'delay_functions' : {},
         'weight_expression' : 'f1*f2',
         'delay_expression' : '0.5', 
-        
-        'base_weight': ref('sheets.l4_cortex_exc.AfferentConnection.base_weight')*ref('sheets.l4_cortex_inh.ExcInhAfferentRatio'),
+        'base_weight': ref('sheets.l23_cortex_exc.L4ExcL23ExcConnection.base_weight') * ref('sheets.l23_cortex_inh.L4ExcL23InhAfferentRatio'),
         'num_samples' : ref('sheets.l23_cortex_exc.L4ExcL23ExcConnection.num_samples')* ref('sheets.l4_cortex_exc.inhibitory_connection_ratio'),
     },
 }
