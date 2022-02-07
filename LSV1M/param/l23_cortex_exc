@@ -10,13 +10,40 @@
                 'density': ref('sheets.l4_cortex_exc.params.density'),
        	        'mpi_safe' : False,
                 'magnification_factor': ref('sheets.l4_cortex_exc.params.magnification_factor'),
-                'cell': ref('sheets.l4_cortex_exc.params.cell'),
+                'cell': {
+                        'model': 'EIF_cond_exp_isfa_ista',
+                        'params': {
+                            'v_rest': -80,
+                            'v_reset': -60.0,
+                            'tau_refrac': 2.0,
+                            'tau_m': ref('sheets.l4_cortex_exc.params.cell.params.tau_m'),
+                            'cm': 0.03,
+                            #'cm': ref('sheets.l4_cortex_exc.params.cell.params.tau_m')/233,
+                            'e_rev_E': 0.0,
+                            'e_rev_I': -80.0,
+                            'tau_syn_E': ref('sheets.l4_cortex_exc.params.cell.params.tau_syn_E'),
+                            'tau_syn_I': ref('sheets.l4_cortex_exc.params.cell.params.tau_syn_I'),
+                            'a' : -0.8,
+                            'b' : 0.08,
+                            'delta_T' : 0.8,
+                            'tau_w' : 1.0,
+                            'v_thresh' : -56.0
+                        },
+
+                       'initial_values': {
+                                    'v': PyNNDistribution(name='uniform',low=-70,high=-51),
+                                },
+
+                    },
                 'artificial_stimulators' : ref('sheets.l4_cortex_exc.params.artificial_stimulators'),
                 'recording_interval'  :  ref('sheets.l4_cortex_exc.params.recording_interval'),                                            
-                'recorders' : url("param/l23_exc_rec"),    
+                'recorders' : url("param_jan4/l23_exc_rec"),    
     },
     
-    'feedback_conn_ratio' : ref('sheets.l4_cortex_exc.layer23_aff_ratio'),
+    'layer23_aff_ratio' : 0.22,
+    'feedback_arborization_ratio' : 2,
+
+    'K' : ref('sheets.l4_cortex_exc.K'), # Number of synapses per neuron
     
     'L23ExcL23ExcConnection': {
         'target_synapses' : 'excitatory',             
@@ -52,7 +79,7 @@
         'weight_expression' : 'f1*f3+f2',
         'delay_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.delay_expression'),
         'base_weight': ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.base_weight'),
-	'num_samples' : ref('sheets.l4_cortex_exc.K')*4.0/5.0*(1-ref('sheets.l23_cortex_exc.feedback_conn_ratio')),
+	'num_samples' : ref('sheets.l23_cortex_exc.K')*4/5*(1-ref('sheets.l23_cortex_exc.layer23_aff_ratio')),
     },
 
     'L23ExcL23InhConnection': {
@@ -104,13 +131,20 @@
         'weight_expression' : 'f1*f2',
         'delay_expression' : '1.4', 
         
-        'base_weight': 0.0016,
-        'num_samples' : ref('sheets.l4_cortex_exc.layer23_aff_ratio')*ref('sheets.l4_cortex_exc.K')*4.0/5.0,
+        'base_weight': ref('sheets.l4_cortex_exc.AfferentConnection.base_weight'),
+        'num_samples' : ref('sheets.l23_cortex_exc.layer23_aff_ratio')*ref('sheets.l23_cortex_exc.K')*4/5,
     },
 
     'L23ExcL4ExcConnection': {
         'target_synapses' : 'excitatory',             
-        'short_term_plasticity': None, 
+        'short_term_plasticity': {
+                                            'U': 0.75,
+                                            'tau_rec': 30,
+                                        'tau_psc': 3.0,
+                                            'tau_fac': 0.0,
+        },
+
+        #'short_term_plasticity': None, 
         'weight_functions' : {  'f1' : {
                                          'component' : 'mozaik.connectors.modular_connector_functions.GaussianDecayModularConnectorFunction',
                                          'params' : {
@@ -135,17 +169,18 @@
         'delay_expression' : '1.4', 
         
         'base_weight': ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.base_weight'),
-        'num_samples' : ref('sheets.l4_cortex_exc.K')*4.0/5.0*ref('sheets.l23_cortex_exc.feedback_conn_ratio'),
+        'num_samples' : ref('sheets.l4_cortex_exc.K')*4.0/5.0*ref('sheets.l4_cortex_exc.feedback_conn_ratio'),
     },
     
 
     'L23ExcL4InhConnection': {
         'target_synapses' : 'excitatory',             
-        'short_term_plasticity': None, 
+        'short_term_plasticity': ref('sheets.l23_cortex_exc.L23ExcL4ExcConnection.short_term_plasticity'), 
+        #'short_term_plasticity': None, 
         'weight_functions' : {  'f1' : {
                                          'component' : 'mozaik.connectors.modular_connector_functions.GaussianDecayModularConnectorFunction',
                                          'params' : {
-                                            	            'arborization_constant': ref('sheets.l23_cortex_exc.L23ExcL4ExcConnection.weight_functions.f1.params.arborization_constant')*2.0,
+                                            	            'arborization_constant': ref('sheets.l23_cortex_exc.L23ExcL4ExcConnection.weight_functions.f1.params.arborization_constant') * ref('sheets.l23_cortex_exc.feedback_arborization_ratio'),
                                                             'arborization_scaler': 1.0,
                                                     }
                                        },                                        

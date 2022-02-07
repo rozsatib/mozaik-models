@@ -1,13 +1,13 @@
 {
     'component': 'mozaik.models.vision.spatiotemporalfilter.SpatioTemporalFilterRetinaLGN',
     'params': {
-        'density': 50, # neurons per degree squared
+        'density': 200, # neurons per degree squared
         'size'  : (5.0,5.0), # the effective size of the modelled section of retina/lgn
         'linear_scaler': 6.0,
         'mpi_reproducible_noise' : False,
         'cached' : False,
         'cache_path' : 'retinal_cache/',
-        'recorders' :  url("param/lgn_rec"),
+        'recorders' :  url("param_jan4/lgn_rec"),
         'recording_interval'  :  1.0,
         'receptive_field': {
             #'func': 'lambda x,y,t,p: numpy.sin(t)',
@@ -38,12 +38,11 @@
             'gain': 12,
             'non_linear_gain' : {
                         'contrast_gain' : 0.11,
-                        'contrast_scaler' : 0.0001,
-                        'luminance_gain' : 0.011,
-                        'luminance_scaler' : 0.025,
+                        'contrast_scaler' : 0.00013,
+                        'luminance_gain' : 0.009,
+                        'luminance_scaler' : 0.4,
                     }
         },
-
         'cell': {
             'model': 'IF_cond_exp',
             'params': {
@@ -56,7 +55,7 @@
                 'e_rev_E': 0.0,
                 'e_rev_I': -75.0,
                 'tau_syn_E': 1.5,
-                'tau_syn_I': 10.0, 
+                'tau_syn_I': 10.0,
             },
             'initial_values': {
                 'v': -70.0,
@@ -64,8 +63,8 @@
         },
         
         'noise': {
-            'mean': 0.0,
-            'stdev': 3.0, #nA
+            'mean': 0,
+            'stdev': 3.0,
         }
     }
 }

@@ -11,18 +11,19 @@
                 'cell': {
                         'model': 'EIF_cond_exp_isfa_ista',
                         'params': {
-                            'v_thresh': ref('sheets.l4_cortex_exc.params.cell.params.v_thresh'),
-                            'v_rest': -70,
-                            'v_reset': -55.0,
+                            'v_thresh': -59,
+                            'v_rest': -76,
+                            'v_reset': -60.0,
                             'tau_refrac': 0.5,
-                            'tau_m': 10.0,
-                            'cm': 0.04,
+                            'tau_m': 7.0,
+                            'cm': 0.03,
+                            #'cm': ref('sheets.l4_cortex_inh.params.cell.params.tau_m')/233,
             	            'e_rev_E': ref('sheets.l4_cortex_exc.params.cell.params.e_rev_E'),
                             'e_rev_I': ref('sheets.l4_cortex_exc.params.cell.params.e_rev_I'),
                     	    'tau_syn_E': ref('sheets.l4_cortex_exc.params.cell.params.tau_syn_E'),
                             'tau_syn_I': ref('sheets.l4_cortex_exc.params.cell.params.tau_syn_I'),
-                            'a' : ref('sheets.l4_cortex_exc.params.cell.params.a'),
-                            'b' : ref('sheets.l4_cortex_exc.params.cell.params.b'),
+                            'a' : 0,
+                            'b' : 0,
                             'delta_T' : ref('sheets.l4_cortex_exc.params.cell.params.delta_T'),
                             'tau_w' : ref('sheets.l4_cortex_exc.params.cell.params.tau_w'),
                         }, 
@@ -33,17 +34,24 @@
                     },
                 'artificial_stimulators' : ref('sheets.l4_cortex_exc.params.artificial_stimulators'),
                 'recording_interval'  :  ref('sheets.l4_cortex_exc.params.recording_interval'),                                            
-                'recorders' : url("param/l4_inh_rec"),    
+                'recorders' : url("param_jan4/l4_inh_rec"),    
     },
         
     'L4InhL4ExcConnection': {
         'target_synapses' : 'inhibitory',               
-    	'short_term_plasticity': ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.short_term_plasticity'),
+
+        'short_term_plasticity': {
+		            'U': 0.75, 
+		            'tau_rec': 70, 
+		            'tau_psc': 3.0,
+		            'tau_fac': 0.0,
+                        },
+ 
         'weight_functions' : {  
                                 'f1' : {
                                          'component' : 'mozaik.connectors.vision.V1CorrelationBasedConnectivity',
                                          'params' : {
-                                                        'sigma' : ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.weight_functions.f1.params.sigma'),
+                                                        'sigma' : 1.4,
                                                         'target_synapses' : 'inhibitory',  
                                                     }
                                         },  
@@ -71,18 +79,18 @@
 
         'weight_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.weight_expression'),
         'delay_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.delay_expression'),
-        'base_weight': 0.0023,
+        'base_weight': 0.0019*ref('sheets.l4_cortex_exc.syn_weight_scaler'),
         'num_samples' : ref('sheets.l4_cortex_exc.K')/5.0,
     },
 
     'L4InhL4InhConnection':  {
         'target_synapses' : 'inhibitory',               
-    	'short_term_plasticity': ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.short_term_plasticity'),
+    	'short_term_plasticity': ref('sheets.l4_cortex_inh.L4InhL4ExcConnection.short_term_plasticity'),
         'weight_functions' : {  
                                 'f1' : {
                                          'component' : 'mozaik.connectors.vision.V1CorrelationBasedConnectivity',
                                          'params' : {
-                                                        'sigma' : ref('sheets.l4_cortex_exc.L4ExcL4InhConnection.weight_functions.f1.params.sigma'),
+                                                        'sigma' : ref('sheets.l4_cortex_inh.L4InhL4ExcConnection.weight_functions.f1.params.sigma'),
                                                         'target_synapses' : 'inhibitory',  
                                                     }
                                         },  
@@ -133,7 +141,7 @@
 	    'off_bias' : ref('sheets.l4_cortex_exc.AfferentConnection.off_bias'),
 	    
             'base_weight' : ref('sheets.l4_cortex_exc.AfferentConnection.base_weight')*ref('sheets.l4_cortex_inh.ExcInhAfferentRatio'),
-            'num_samples' :  PyNNDistribution(name='uniform',low=55*0.8,high=55*0.8),
+            'num_samples' :  ref('sheets.l4_cortex_exc.AfferentConnection.num_samples'),
             'short_term_plasticity':  ref('sheets.l4_cortex_exc.AfferentConnection.short_term_plasticity'),
     }
 }
