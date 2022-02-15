@@ -96,7 +96,7 @@ class KaschubeMetricsPlot(KaschubePlot):
         pylab.subplot(gs[0, 0])
         smap = pylab.imshow(v["similarity map"], vmin=0, vmax=1)
         pylab.axis("equal")
-        pylab.title("Similarity map; mean=%.2f" % np.mean(v["similarity map"]))
+        pylab.title("Similarity map; mean=%.2f" % v["similarity map"].mean())
         pylab.colorbar(smap)
 
         # Orientation map
@@ -161,8 +161,7 @@ class KaschubeCorrelationPlot(KaschubePlot):
         pylab.subplot(gs[0, 0])
         pylab.imshow(v["orientation map"].T,cmap='hsv')
         pylab.plot(x,y,'o',color='lime',markersize=9,mec='black',mew=2.5)
-        print(v["or_map 0-peak coords"])
-        for i in range(1,len(x)):
+        for i in range(1,len(x)+1):
             xx,yy = v["or_map 0-peak coords"][i]
             pylab.subplot(gs[i//cols, i%cols])
             pylab.imshow(v["or_map 0-peak Cmaps"][i].T,cmap="bwr")
@@ -195,7 +194,7 @@ class KaschubeEventPlot(KaschubePlot):
 
     def subplot(self, subplotspec):
         plots = {}
-        rows, cols = 1, 1
+        rows, cols = 2, 1
         gs = gridspec.GridSpecFromSubplotSpec(
             rows, cols, subplot_spec=subplotspec, hspace=0.1, wspace=0.2
         )
@@ -210,9 +209,25 @@ class KaschubeEventPlot(KaschubePlot):
             return plots
         v = v['']
         
+        pylab.subplot(gs[0, 0])
         t_res = [int(t.split(":")[-1]) for t in self.parameters.tags if "t_res" in t][0]
         KaschubeEventPlot.plot_N_of_active_pixels(v, t_res)
 
+        v = self.read_results(
+            ["smoothed"],
+            self.parameters.sheet_name,
+            self.parameters.prefix + "-Activity",
+            self.parameters.tags,
+        )
+        if v is None or '' not in v.keys():
+            return plots
+
+        pylab.subplot(gs[1, 0])
+        y=v['']["smoothed"].mean(axis=(0,1))
+        pylab.plot(np.linspace(0,len(y)*t_res,len(y)),y)
+        pylab.xlabel("Time/ms")
+        pylab.ylabel("Mean activity")
+        
         return plots
 
 class KaschubeActivityMovie(KaschubePlot):
@@ -468,13 +483,21 @@ def gen_st_array(dsv, s_res=None, t_res=None,smoothing=True):
         for st in t[i]:
             A[posx[i]:posx[i]+kx,posy[i]:posy[i]+ky,st] += s_ker
     A /= t_res
-    A_c = scipy.ndimage.convolve1d(A, t_kernel(t_res), axis=2, mode='constant', origin=-len(t_kernel(t_res))//2)
+    
+    padding = A[:,:,len(t_kernel(t_res)):].mean(axis=2) if A.shape[2] > len(t_kernel(t_res)) else 0
+    A_c = np.zeros(A.shape)
+    for i in range(A_c.shape[0]):
+        for j in range(A_c.shape[1]):
+            A_c[i,j,:] = scipy.ndimage.convolve1d(A[i,j,:], t_kernel(t_res), mode='constant', cval=padding[i,j], origin=-len(t_kernel(t_res))//2)
+    # A_c = scipy.ndimage.convolve1d(A, t_kernel(t_res), axis=2, mode='constant', origin=-len(t_kernel(t_res))//2)
     
     if smoothing:
         sigma = 100 / s_res
         A_s = scipy.ndimage.gaussian_filter1d(A_c, sigma, axis=0, mode='constant')
         A_s = scipy.ndimage.gaussian_filter1d(A_s, sigma, axis=1, mode='constant')
         A_c += A_s * smoothing_scaler
+    
+    A_c = (A_c.copy().transpose((2, 0, 1)) - A_c.mean(axis=2)).transpose((1, 2, 0))
     return A_c[kx//2:-kx//2,ky//2:-ky//2,:], A[kx//2:-kx//2,ky//2:-ky//2,:]
     
     #A = np.zeros((50,50,200))
