@@ -70,7 +70,7 @@
 
     'L23InhL23InhConnection': {
         'target_synapses' : 'inhibitory',             
-        'short_term_plasticity': ref('sheets.l4_cortex_inh.L4InhL4InhConnection.short_term_plasticity'),
+        'short_term_plasticity': ref('sheets.l23_cortex_inh.L23InhL23ExcConnection.short_term_plasticity'),
         'weight_functions' : {  
                                 'f1' : {
                                          'component' : 'mozaik.connectors.modular_connector_functions.HyperbolicModularConnectorFunction',
