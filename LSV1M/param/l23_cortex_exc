@@ -1,13 +1,15 @@
 {
     #CorticalUniformSheet parameters
     
-    'component': 'mozaik.sheets.vision.VisualCorticalUniformSheet',
+    'component': 'mozaik.sheets.vision.VisualCorticalUniformSheet3D',
     
     'params':{
                 'name':'V1_Exc_L2/3',
                 'sx':ref('sheets.l4_cortex_exc.params.sx'),
                 'sy':ref('sheets.l4_cortex_exc.params.sy'),
                 'density': ref('sheets.l4_cortex_exc.params.density'),
+                'min_depth': 100,
+                'max_depth': 400,
        	        'mpi_safe' : False,
                 'magnification_factor': ref('sheets.l4_cortex_exc.params.magnification_factor'),
                 'cell': ref('sheets.l4_cortex_exc.params.cell'),
@@ -53,6 +55,7 @@
         'delay_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.delay_expression'),
         'base_weight': ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.base_weight'),
 	'num_samples' : ref('sheets.l4_cortex_exc.K')*4.0/5.0*(1-ref('sheets.l23_cortex_exc.feedback_conn_ratio')),
+        'local_module': None,
     },
 
     'L23ExcL23InhConnection': {
@@ -75,6 +78,7 @@
         'delay_expression' : ref('sheets.l4_cortex_exc.L4ExcL4InhConnection.delay_expression'),
         'base_weight': ref('sheets.l4_cortex_exc.L4ExcL4InhConnection.base_weight'),
 	'num_samples' : ref('sheets.l23_cortex_exc.L23ExcL23ExcConnection.num_samples') * ref('sheets.l4_cortex_exc.inhibitory_connection_ratio'),
+        'local_module': None,
     },
 
 
@@ -106,6 +110,7 @@
         
         'base_weight': ref('sheets.l4_cortex_exc.AfferentConnection.base_weight'),
         'num_samples' : ref('sheets.l4_cortex_exc.layer23_aff_ratio')*ref('sheets.l4_cortex_exc.K')*4.0/5.0,
+        'local_module': None,
     },
 
     'L23ExcL4ExcConnection': {
@@ -136,6 +141,7 @@
         
         'base_weight': ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.base_weight'),
         'num_samples' : ref('sheets.l4_cortex_exc.K')*4.0/5.0*ref('sheets.l23_cortex_exc.feedback_conn_ratio'),
+        'local_module': None,
     },
     
 
@@ -165,6 +171,7 @@
         'delay_expression' : '0.5', 
         'base_weight': ref('sheets.l4_cortex_exc.L4ExcL4InhConnection.base_weight'),
 	'num_samples' : ref('sheets.l23_cortex_exc.L23ExcL4ExcConnection.num_samples')*ref('sheets.l4_cortex_exc.inhibitory_connection_ratio'),
+        'local_module': None,
     },
 
 }

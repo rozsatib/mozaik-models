@@ -1,13 +1,15 @@
     {
     #CorticalUniformSheet parameters
     
-    'component': 'mozaik.sheets.vision.VisualCorticalUniformSheet',
+    'component': 'mozaik.sheets.vision.VisualCorticalUniformSheet3D',
 
     'params':{
                 'name':'V1_Inh_L2/3',
                 'sx': ref('sheets.l4_cortex_exc.params.sx'),
                 'sy': ref('sheets.l4_cortex_exc.params.sy'),
                 'density': ref('sheets.l23_cortex_exc.params.density')/4,
+                'min_depth': 100,
+                'max_depth': 400,
                 'mpi_safe' : False,
                 'magnification_factor': ref('sheets.l4_cortex_exc.params.magnification_factor'),
                 'cell': ref('sheets.l4_cortex_inh.params.cell'),
@@ -34,6 +36,7 @@
         'delay_expression' : ref('sheets.l4_cortex_inh.L4InhL4ExcConnection.delay_expression'),
         'base_weight': ref('sheets.l4_cortex_inh.L4InhL4ExcConnection.base_weight'),
 	'num_samples' : ref('sheets.l4_cortex_inh.L4InhL4ExcConnection.num_samples'),
+        'local_module': None,
     },
 
     'L23InhL23InhConnection': {
@@ -55,6 +58,7 @@
         
         'base_weight': ref('sheets.l4_cortex_inh.L4InhL4InhConnection.base_weight'),
 	'num_samples' : ref('sheets.l4_cortex_inh.L4InhL4InhConnection.num_samples'),
+        'local_module': None,
     },
 
    'L4ExcL23InhConnection': {
@@ -84,5 +88,6 @@
         
         'base_weight': ref('sheets.l4_cortex_exc.AfferentConnection.base_weight')*ref('sheets.l4_cortex_inh.ExcInhAfferentRatio'),
         'num_samples' : ref('sheets.l23_cortex_exc.L4ExcL23ExcConnection.num_samples')* ref('sheets.l4_cortex_exc.inhibitory_connection_ratio'),
+        'local_module': None,
     },
 }

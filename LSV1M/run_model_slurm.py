@@ -4,10 +4,9 @@ from mozaik.meta_workflow.parameter_search import (
     CombinationParameterSearch,
     SlurmSequentialBackend,
 )
-import numpy
 import time
 
-slurm_options = ["-J 1130sparse_noise", "-w w3", "--mem=64gb", "--hint=nomultithread"]
+slurm_options = ["-J opt_stim", "--exclude=w[1,3-4]", "--mem=63gb", "--hint=nomultithread"]
 
 CombinationParameterSearch(
     SlurmSequentialBackend(
