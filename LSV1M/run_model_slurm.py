@@ -6,7 +6,7 @@ from mozaik.meta_workflow.parameter_search import (
 )
 import time
 
-slurm_options = ["-J opt_stim", "--exclude=w[1,3-4]", "--mem=63gb", "--hint=nomultithread"]
+slurm_options = ["-J nat_img", "--exclude=w[11]", "--mem=63gb", "--hint=nomultithread"]
 
 CombinationParameterSearch(
     SlurmSequentialBackend(
