@@ -10,6 +10,8 @@ from types import SimpleNamespace
 import numpy as np
 
 class RegulatorSetup:
+    stim_circle_radius = 150 # um
+
     @staticmethod
     def append_history(state,update_dict):
         if state.history == None:
@@ -34,20 +36,19 @@ class RegulatorSetup:
         # Clamp the output - it cannot be negative, and inputs above 1 drive the network into unreasonable firing rates
         control_signal = min(1,max(control_signal,0))
         # Set the input for the next state update interval
-        stim_circle_radius = 150 # um
-        circular_mask = simple_shapes_binary_mask(regulator.stimulator_coords_x, regulator.stimulator_coords_y,'circle', ParameterSet({'coords':[0,0],'radius':stim_circle_radius}))
+        circular_mask = simple_shapes_binary_mask(regulator.stimulator_coords_x, regulator.stimulator_coords_y,'circle', ParameterSet({'coords':[0,0],'radius':RegulatorSetup.stim_circle_radius}))
         input_signal = circular_mask * np.ones((regulator.parameters.state_update_interval // regulator.parameters.update_interval,len(regulator.stimulator_coords_x),len(regulator.stimulator_coords_y)))
         return input_signal.transpose((1,2,0))
 
     @staticmethod    
     def update_state(regulator):
         recorded_metric_names = ["spikes","v","gsyn_exc","gsyn_inh"]
+        # Set t_start to 0 to retrieve the recording for the entire experiment
         last_spiketrains = regulator.get_recording("spikes",t_start=regulator.current_time()-regulator.parameters.state_update_interval,t_stop=regulator.current_time())
-        # last_vm = regulator.get_recording("v",t_start=regulator.current_time()-regulator.parameters.state_update_interval,t_stop=regulator.current_time())
-        # TODO: Create mask to only select firing rate of neurons under the stimulated area
-        recorded_x,recorded_y = regulator.recorded_neuron_positions()
-        print(len(last_spiketrains),len(recorded_x),len(recorded_y))
-        fr_last = np.mean([len(st) / (regulator.parameters.state_update_interval / 1000)  for st in last_spiketrains])
+        #last_vm = regulator.get_recording("v",t_start=regulator.current_time()-regulator.parameters.state_update_interval,t_stop=regulator.current_time())
+        # The stimulation circle is centered on (0,0)
+        in_circle_mask = np.sqrt(np.sum(np.array(regulator.recorded_neuron_positions()) ** 2,axis=0)) < RegulatorSetup.stim_circle_radius
+        fr_last = np.mean([len(last_spiketrains[i]) / (regulator.parameters.state_update_interval / 1000)  for i in range(len(last_spiketrains)) if in_circle_mask[i]])
         regulator.state.error = regulator.state.target_signal[int(regulator.current_time() // regulator.parameters.update_interval) - 1] - fr_last
         print("New FR last: %.3f, error: %.3f" % (fr_last, regulator.state.error))
         RegulatorSetup.append_history(regulator.state,{"Firing rate":fr_last,"error":regulator.state.error})
@@ -72,7 +73,6 @@ class RegulatorSetup:
         led_size = (regulator.parameters.spacing * 72 / fig.dpi) ** 2  
         # Plot LED array, only show active LEDs
         pylab.scatter(stim_x.flatten(),stim_y.flatten(),alpha=0.4 * input_signal_nonzeros,color='k',marker='s',s=led_size)
-        #pylab.scatter(stim_x.flatten(),stim_y.flatten(),alpha=(input_signal.flatten()>0).astype(float)*0.4,color='k',marker='s',s=led_size)
         pylab.xlabel("x (um)",fontsize=fontsize)
         pylab.ylabel("y (um)",fontsize=fontsize)
         pylab.xticks(fontsize=fontsize)
