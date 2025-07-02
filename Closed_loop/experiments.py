@@ -48,17 +48,83 @@ class RegulatorSetup:
     @staticmethod
     def calculate_lfp(regulator,electrode_x=0,electrode_y=0):
         e_rev_E, e_rev_I = regulator.sheet.parameters.cell.params['e_rev_E'], regulator.sheet.parameters.cell.params['e_rev_I']
-        curr_time, prev_time = regulator.current_time(), regulator.current_time() - regulator.parameters.state_update_interval
+        #curr_time, prev_time = regulator.current_time(), regulator.current_time() - regulator.parameters.state_update_interval
+        curr_time, prev_time = regulator.current_time(), 0
+
+        in_circle_mask = np.sqrt(np.sum(np.array(regulator.recorded_neuron_positions()) ** 2, axis=0)) < RegulatorSetup.stim_circle_radius
         e_syn_all = regulator.get_recording("gsyn_exc",t_start=prev_time,t_stop=curr_time)
         i_syn_all = regulator.get_recording("gsyn_inh",t_start=prev_time,t_stop=curr_time)
         vm_all = regulator.get_recording("v",t_start=prev_time,t_stop=curr_time)
 
         x, y = regulator.recorded_neuron_positions()
+
         lfp = ((e_rev_E - vm_all) * e_syn_all) - ((e_rev_I - vm_all) * i_syn_all) # RWS proxy as Davis et al., 2021
 
         gauss = lambda r,sigma : (1 / (2 * np.pi * sigma**2)) * np.exp(-r**2 / (2 * sigma**2))
         dists = np.sqrt((x-electrode_x)**2 + (y-electrode_y)**2)
         lfp = (lfp * gauss(dists,250)).sum(axis=1)
+
+        e_syn_all, i_syn_all, vm_all = e_syn_all[:,in_circle_mask], i_syn_all[:,in_circle_mask], vm_all[:,in_circle_mask]
+        last_spiketrains = regulator.get_recording("spikes",t_start=prev_time,t_stop=curr_time)
+
+        fig, ax = pylab.subplots(6, 1, figsize=(25, 16))
+        alpha=0.01
+        ax[0].plot(np.array(range(len(regulator.state.history["LMS"])))*regulator.parameters.state_update_interval,regulator.state.history["LMS"],label="control signal")
+        ax[1].plot(range(len(lfp)), e_syn_all, c='r', alpha=alpha)
+        ax[1].plot(range(len(lfp)), e_syn_all.mean(axis=1), c='r', label="esyn (mean)",lw=2)
+        ax[2].plot(range(len(lfp)), i_syn_all, c='b', alpha=alpha)
+        ax[2].plot(range(len(lfp)), i_syn_all.mean(axis=1), c='b', label="isyn (mean)",lw=2)
+        ax[3].plot(range(len(lfp)), vm_all, c='k', alpha=alpha)
+        ax[3].plot(range(len(lfp)), vm_all.mean(axis=1), c='k', label="vm (mean)",lw=2)
+        ax[4].plot(range(len(lfp)), lfp, c='k', label="lfp")
+        for i, ylabel in zip(range(5),["control signal","e_syn","i_syn","vm","lfp"]):
+            ax[i].set_ylabel(ylabel + "\n(stimulated neurons)")
+            ax[i].set_xlabel("Time (ms)")
+            ax[i].set_xlim(0,4000)
+            ax[i].legend()
+        
+        sts = last_spiketrains
+        first = True
+        j=0
+        for i in range(len(sts)):
+            if in_circle_mask[i] and len(sts[i]) > 0:
+                if first:
+                    ax[5].plot(np.array(sts[i])-150,int(j+np.sum(~in_circle_mask))*np.ones_like(sts[i]),'.',c='tab:blue',label="Stimulated neuron spikes")
+                    first=False
+                else:
+                    ax[5].plot(np.array(sts[i])-150,int(j+np.sum(~in_circle_mask))*np.ones_like(sts[i]),'.',c='tab:blue')
+                j+=1
+        first = True
+        j=0
+        for i in range(len(sts)):
+            if not in_circle_mask[i] and len(sts[i]) > 0:
+                if first:
+                    ax[5].plot(np.array(sts[i])-150,j*np.ones_like(sts[i]),'.',c='k',label="Non-stimulated neuron spikes")
+                    first=False
+                else:
+                    ax[5].plot(np.array(sts[i])-150,j*np.ones_like(sts[i]),'.',c='k')
+                j+=1
+        ax[5].set_xlim(0,4000)
+        ax[5].set_ylabel("Neurons")
+        ax[5].set_xlabel("Time (ms)")
+        ax[5].legend()
+        #for i in range(len(stim)):
+        #    ax[5].plot(stim[i],len(stim[i]),'.','tab:blue')            
+        #ax2 = ax[0].twinx()
+        #ax2.plot(t, np.array(state.history["Firing rate"])[:min_length], c='k', label="Firing rate (sp/s)")
+        #ax[0].set_xlabel("Time (s)")
+        #ax[0].set_ylabel("LFP")
+        #ax2.set_ylabel("Firing rate (sp/s)")
+        #ax[0].legend()
+        #if "LMS" in state.history:
+        #    ax[1].plot(t, np.array(state.history["LMS"])[:min_length], '--', label="LMS Control Signal")
+        #    ax[1].set_xlabel("Time (s)")
+        #    ax[1].set_ylabel("Control Signal")
+        #    ax[1].legend()
+        fig.tight_layout()
+        fig.savefig("lfp.png")
+        pylab.close(fig)
+
         return lfp
 
     @named_static("'RegulatorSetup.calculate_input'")
@@ -98,7 +164,7 @@ class RegulatorSetup:
             ParameterSet({'coords': [0, 0], 'radius': RegulatorSetup.stim_circle_radius})
         )
         print("Current time: ",regulator.current_time())
-        s.control_signal = 0.2 if regulator.current_time() % 400 < 200 else 0
+        s.control_signal = 0.2 if regulator.current_time() % 1000 > 500 else 0
 
         input_signal = circular_mask * s.control_signal * np.ones((
             regulator.parameters.state_update_interval // regulator.parameters.update_interval,
@@ -149,8 +215,8 @@ class RegulatorSetup:
             "error": regulator.state.error
         })
 
-        RegulatorSetup.plot_history(regulator)
-        RegulatorSetup.plot_orientations_with_stimulus(regulator)
+        #RegulatorSetup.plot_history(regulator)
+        #RegulatorSetup.plot_orientations_with_stimulus(regulator)
 
     @staticmethod
     def plot_orientations_with_stimulus(regulator):
