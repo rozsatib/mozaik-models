@@ -56,13 +56,46 @@ To run the models present in this repository one must first install the Mozaik p
 
     3 Description of new parameters added in param files:
 
-        - l4_cortex_exc/L4_NMDA_factor: The proportion of recurrent excitatory-to-excitatory connections in layer 4 which target NMDA receptors. The proportion of AMPA synapses is equal to 1 - L4_NMDA_factor
-        - l4_cortex_exc/L4_GABAB_factor: The proportion of inhibitory connections in layer 4 which target GABA-B receptors. The proportion of GABA-A synapses is equal to 1 - L4_GABAB_factor
-        - l23_cortex_exc/L23_NMDA_factor: The proportion of recurrent excitatory-to-excitatory connections in layer 2/3 which target NMDA receptors. The proportion of AMPA synapses is equal to 1 - L23_NMDA_factor
-        - l23_cortex_exc/L23_GABAB_factor: The proportion of inhibitory connections in layer 2/3 which target GABA-B receptors. The proportion of GABA-A synapses is equal to 1 - L23_GABAB_factor
-        - l4_cortex_exc/inh_NMDA_factor: Modulates the *_NMDA_factor parameters for connections targeting inhibitory neurons. The proportion of recurrent excitatory-to-inhibitory connections in layer 4 which target NMDA receptors is equal to L4_NMDA_factor * inh_NMDA_factor
-        - l4_cortex_exc/inh_GABAB_factor: Modulates the *_GABAB_factor parameters for connections targeting inhibitory neurons. The proportion of recurrent inhibitory-to-inhibitory connections in layer 4 which target NMDA receptors is equal to L4_GABAB_factor * inh_GABAB_factor
-        - l4_cortex_exc/afferent_NMDA_factor: Modulates the *_NMDA_factor parameters for afferent connections. The proportion of excitatory-to-excitatory afferent connections in layer 4 which target NMDA receptors is equal to L4_NMDA_factor * afferent_NMDA_factor.
-        - l4_cortex_exc/feedback_NMDA_factor: Modulates the *_NMDA_factor parameters for feedback connections. The proportion of excitatory-to-excitatory feedback connections in layer 4 which target NMDA receptors is equal to L4_NMDA_factor * feedback_NMDA_factor.
-        - l4_cortex_exc/NMDA_weight_scaler: Scaler for the weights of NMDA synapses relatively to those of corresponding AMPA synapses.
+        Each neuron model has now a parameter 'receptors'. This should be set to None if the model is not a multisynapse model. Otherwise it should contain a dictionnary with the following structure:
+            'receptors:{
+                'name_receptor1': {
+                  'name': synapse_model_type,
+                  'params': synapse_model_params,
+                },
+                'name_receptor2': {
+                  'name': synapse_model_type,
+                  'params': synapse_model_params,
+                },
+                ...
+                'name_receptorN': {
+                  'name': synapse_model_type,
+                  'params': synapse_model_params,
+                },                
+            }
+        An arbitrary number of receptors can be defined this way.
+        The names of the receptors are arbitrarily defined by the user. However, their corresponding conductance wil be included in the computation of excitatory (or inhibitory) conductance during analysis only if their name is included in the list passed as argument `excitatory_receptors` (or inhibitory_receptors`) in the function ExcitatoryConductanceGenerator (or InhibitoryConductanceGenerator) in analysis_and_visualization.py.
+        `synapse_model_type` is a string which can take the following values 'ExpPSR', 'AlphaPSR' and 'BetaPSR'. These correspond to synapse models defined in PyNN, with ExpPSR correcponding to normal exponential decay, AlphaPSR corresponding to alpha synapses with rise and decay controlled by a single time constrant, and BetaPSR corresponding to a difference of two exponentials each controlling rise and decay with separate time constants (for reference see Roth, A., & van Rossum, M. C. (2009). Modeling synapses. Computational modeling methods for neuroscientists, 6(139), 700.).
+        `params` is a dictionary with the following structure:
+            'params': {
+                "tau_syn": float,
+                "e_syn": float,
+            },        
+        or for BetaPSR synapses:
+            'params': {
+                "tau_rise": float,
+                "tau_decay": float,
+                "e_syn": float,
+            },        
+        `e_syn` defines the reversal potential of the synapse. Crucially, it is the parameter which defines whether the synapse is excitatory or inhibitory (depending if it's greater or smaller than the resting potential of the neuron). Other parameters are the time constants of the synapse.
+
+        The model presented here implements 4 receptors (AMPA, NMDA, GABAA and GABAB). However, no GABAB synpases are created as the corresponding connections are defined with 'num_samples':0 in the parameters. The following parameters are used defined to compute the number of samples of each receptor type for each connections
+            - l4_cortex_exc/L4_NMDA_factor: The proportion of recurrent excitatory-to-excitatory connections in layer 4 which target NMDA receptors. The proportion of AMPA synapses is equal to 1 - L4_NMDA_factor
+            - l4_cortex_exc/L4_GABAB_factor: The proportion of inhibitory connections in layer 4 which target GABA-B receptors. The proportion of GABA-A synapses is equal to 1 - L4_GABAB_factor
+            - l23_cortex_exc/L23_NMDA_factor: The proportion of recurrent excitatory-to-excitatory connections in layer 2/3 which target NMDA receptors. The proportion of AMPA synapses is equal to 1 - L23_NMDA_factor
+            - l23_cortex_exc/L23_GABAB_factor: The proportion of inhibitory connections in layer 2/3 which target GABA-B receptors. The proportion of GABA-A synapses is equal to 1 - L23_GABAB_factor
+            - l4_cortex_exc/inh_NMDA_factor: Modulates the *_NMDA_factor parameters for connections targeting inhibitory neurons. The proportion of recurrent excitatory-to-inhibitory connections in layer 4 which target NMDA receptors is equal to L4_NMDA_factor * inh_NMDA_factor
+            - l4_cortex_exc/inh_GABAB_factor: Modulates the *_GABAB_factor parameters for connections targeting inhibitory neurons. The proportion of recurrent inhibitory-to-inhibitory connections in layer 4 which target NMDA receptors is equal to L4_GABAB_factor * inh_GABAB_factor
+            - l4_cortex_exc/afferent_NMDA_factor: Modulates the *_NMDA_factor parameters for afferent connections. The proportion of excitatory-to-excitatory afferent connections in layer 4 which target NMDA receptors is equal to L4_NMDA_factor * afferent_NMDA_factor.
+            - l4_cortex_exc/feedback_NMDA_factor: Modulates the *_NMDA_factor parameters for feedback connections. The proportion of excitatory-to-excitatory feedback connections in layer 4 which target NMDA receptors is equal to L4_NMDA_factor * feedback_NMDA_factor.
+            - l4_cortex_exc/NMDA_weight_scaler: Scaler for the weights of NMDA synapses relatively to those of corresponding AMPA synapses.
 
