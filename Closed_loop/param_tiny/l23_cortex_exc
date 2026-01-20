@@ -7,7 +7,7 @@
                 'name':'V1_Exc_L2/3',
                 'sx':ref('sheets.l4_cortex_exc.params.sx'),
                 'sy':ref('sheets.l4_cortex_exc.params.sy'),
-                'min_depth': 100,
+                'min_depth': 100, #https://elifesciences.org/reviewed-preprints/97290
                 'max_depth': 400,
                 'density': ref('sheets.l4_cortex_exc.params.density'),
        	        'mpi_safe' : False,
@@ -47,7 +47,7 @@
                             "light_source_light_propagation_data": "light_scattering_radial_profiles_lsd10.pickle",
                             "update_interval": 1,
                             "transfection_proportion": 1.0,
-                            "state_update_interval": 100,
+                            "state_update_interval": 10,
                         },
                      },
                 },
