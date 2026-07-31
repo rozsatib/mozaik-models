@@ -19,6 +19,11 @@ mpi_comm = MPI.COMM_WORLD
 
 import nest
 nest.Install("stepcurrentmodule")
+from pyNN.nest.cells import UNITS_MAP
+UNITS_MAP.update({
+    "g_ex": "nS",
+    "g_in": "nS",
+})
 
 data_store, model = run_workflow(
     'SelfSustainedPushPull', SelfSustainedPushPull, create_experiments_optogenetic_patterned_stimulation)
