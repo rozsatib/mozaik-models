@@ -1,0 +1,299 @@
+{
+    #CorticalUniformSheet parameters
+    'component': 'mozaik.sheets.vision.VisualCorticalUniformSheet',
+    'params':{
+                'name':'V1_Exc_L4',
+                'sx':5000.0,
+                'sy':ref('sheets.l4_cortex_exc.params.sx'),
+                'density': 1500.0,
+                'mpi_safe' : False,    
+                'magnification_factor': 1000.0,
+              
+                    
+                'cell': {
+                        'model': "aeif_cond_beta_multisynapse",
+                        'native_nest': False,
+                        'params': {
+                            'v_rest': -80,
+                            'v_reset': -60.0,
+                            'tau_refrac': 2.0,
+                            'tau_m': 8.0,
+                            'cm': 0.032,
+                            'a' : -0.8,
+                            'b' : 0.08,
+                            'delta_T' : 0.8,
+                            'tau_w' : 1.0,
+                            'v_thresh' : -57.0                            
+                        },
+			'receptors': {
+                            'AMPA': {
+                              'name': 'BetaPSR',
+                              'params': {
+                                "tau_rise":0.2,
+                                "tau_decay": 1.5,
+                                "e_syn": 0,
+                              },
+                            },
+                            'NMDA': {
+                              'name': 'BetaPSR',
+                              'params': {
+                                "tau_rise": 2,
+                                "tau_decay": 26,
+                                "e_syn": 0,
+                              },
+                            },
+                            'GABAA': {
+                              'name': 'BetaPSR',
+                              'params': {
+                                "tau_rise": 0.26,
+                                "tau_decay":4.2,
+                                "e_syn": -80,
+                              },
+                            },
+                            'GABAB': {
+                              'name': 'BetaPSR',
+                              'params': {
+                                "tau_rise": 36,
+                                "tau_decay": 100,
+                                "e_syn": -80,
+                              },
+                            },
+                          },
+
+                       'initial_values': {
+                                    'v': PyNNDistribution(name='uniform',low=-70,high=-51),
+                                },
+
+                    },
+                'artificial_stimulators' : {},
+                'recording_interval'  :  1.0,                                                            
+                'recorders' : url("param/l4_exc_rec"),
+    },
+
+    'K' : 1000, # Number of synapses per neuron
+    'feedback_conn_ratio' : 0.2,
+    'inhibitory_connection_ratio' : 0.6, # The fraction of connections that are onto inhibitory neurons compared to excitatory
+    'syn_tau_scaler' : 1.0,
+    'syn_weight_scaler' : 0.7,
+    'delay_inc' : 0,
+    'L4_NMDA_factor':0.33,
+    'L4_GABAB_factor':0,
+    'inh_NMDA_factor':1.2,
+    'inh_GABAB_factor':1,
+    'afferent_NMDA_factor':0,
+    'feedback_NMDA_factor':0,
+
+    'NMDA_weight_scaler':0.185,
+
+    'L4ExcL4ExcAMPAConnection': {
+        'target_synapses' : 'AMPA',             
+        'short_term_plasticity': {
+				            'U': 0.75, 
+				            'tau_rec': 30, 
+	 		                'tau_psc': 3.0,
+				            'tau_fac': 0.0,
+                        },
+        'weight_functions' : {                          
+                                'f1' : {
+                                         'component' : 'mozaik.connectors.vision.V1CorrelationBasedConnectivity',
+                                         'params' : {
+                                             	        'sigma' : 1.3,
+                                                        'target_synapses' : 'excitatory',  
+	                                            }
+                                       }, 
+                                'f2' : {
+                                         'component' : 'mozaik.connectors.modular_connector_functions.HyperbolicModularConnectorFunction',
+                                         'params' : {
+                                                	            'theta': 207.76,
+                                                                'alpha': 0.013944,
+                                                    }
+                                       },                                        
+                             },
+        'delay_functions' : {
+                                'd1' : {
+                                         'component' : 'mozaik.connectors.modular_connector_functions.LinearModularConnectorFunction',
+                                         'params' : {
+                                                        'constant_scaler': 1.4 + ref('sheets.l4_cortex_exc.delay_inc'),
+                                                        'linear_scaler': 0.0033333333,   
+                                                    }
+                                       }, 
+        
+                            },
+        'num_samples_functions' : None,
+        'num_samples_expression' : '',
+        'weight_expression' : 'f1*f2',
+        'delay_expression' : 'd1',
+        'base_weight': 0.00018,
+	'annotation_reference_name' : 'aff_samples',
+	'samples_coeff' : 1-ref('sheets.l4_cortex_exc.L4_NMDA_factor'),
+        'num_samples' : ref('sheets.l4_cortex_exc.K')*4.0/5.0*(1-ref('sheets.l4_cortex_exc.feedback_conn_ratio'))*(1-ref('sheets.l4_cortex_exc.L4_NMDA_factor')),
+        'self_connections': True,
+        'local_module': None,
+},
+
+    'L4ExcL4ExcNMDAConnection': {
+        'target_synapses' : 'NMDA',             
+        'short_term_plasticity': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.short_term_plasticity'),        
+        'weight_functions': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.weight_functions'),        
+        'delay_functions': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.delay_functions'),        
+        'weight_expression': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.weight_expression'),        
+        'num_samples_functions' : ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.num_samples_functions'),
+        'num_samples_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.num_samples_expression'),
+        'delay_expression': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.delay_expression'),        
+        'base_weight':ref('sheets.l4_cortex_exc.NMDA_weight_scaler') * ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.base_weight'),        
+        'annotation_reference_name': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.annotation_reference_name'),       
+	'samples_coeff' : ref('sheets.l4_cortex_exc.L4_NMDA_factor'), 
+        'num_samples' : ref('sheets.l4_cortex_exc.K')*4.0/5.0*(1-ref('sheets.l4_cortex_exc.feedback_conn_ratio'))*ref('sheets.l4_cortex_exc.L4_NMDA_factor'),
+        'self_connections': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.self_connections'),
+        'local_module': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.local_module'),        
+},
+    
+    
+    'L4ExcL4InhAMPAConnection': {
+        'target_synapses' : 'AMPA',             
+                
+        'short_term_plasticity': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.short_term_plasticity'),        
+        'weight_functions' : {                          
+                                'f1' : {
+                                         'component' : 'mozaik.connectors.vision.V1CorrelationBasedConnectivity',
+                                         'params' : {
+                                             	        'sigma' : ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.weight_functions.f1.params.sigma'),
+                                                        'target_synapses' : 'excitatory',  
+	                                            }
+                                       }, 
+                                'f2' : {
+                                         'component' : 'mozaik.connectors.modular_connector_functions.HyperbolicModularConnectorFunction',
+                                         'params' : {
+                                                	            'theta': 191.84,
+                                                                'alpha': 0.014827,
+                                                    }
+                                       },                                        
+                             },
+
+        'delay_functions' : {
+                                'd1' : {
+                                         'component' : 'mozaik.connectors.modular_connector_functions.LinearModularConnectorFunction',
+                                         'params' : {
+                                                        'constant_scaler': 0.5 + ref('sheets.l4_cortex_exc.delay_inc'),
+                                                        'linear_scaler': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.delay_functions.d1.params.linear_scaler'),   
+                                                    }
+                                       }, 
+        
+                            },
+
+        'weight_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.weight_expression'),
+        'delay_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.delay_expression'),
+        'num_samples_functions' : ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.num_samples_functions'),
+        'num_samples_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.num_samples_expression'),
+        'base_weight': 0.00035,
+	'annotation_reference_name' : 'aff_samples',
+        'samples_coeff' : 1-ref('sheets.l4_cortex_exc.L4_NMDA_factor')*ref('sheets.l4_cortex_exc.inh_NMDA_factor'),
+        'num_samples' : (ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.num_samples')+ref('sheets.l4_cortex_exc.L4ExcL4ExcNMDAConnection.num_samples')) * ref('sheets.l4_cortex_exc.inhibitory_connection_ratio')*(1-ref('sheets.l4_cortex_exc.L4_NMDA_factor') * ref('sheets.l4_cortex_exc.inh_NMDA_factor')),
+        'self_connections': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.self_connections'),
+        'local_module': None,
+    },
+'L4ExcL4InhNMDAConnection': {
+        'target_synapses' : 'NMDA',
+        'short_term_plasticity': ref('sheets.l4_cortex_exc.L4ExcL4InhAMPAConnection.short_term_plasticity'),
+        'weight_functions': ref('sheets.l4_cortex_exc.L4ExcL4InhAMPAConnection.weight_functions'),
+        'delay_functions': ref('sheets.l4_cortex_exc.L4ExcL4InhAMPAConnection.delay_functions'),
+        'weight_expression': ref('sheets.l4_cortex_exc.L4ExcL4InhAMPAConnection.weight_expression'),
+        'delay_expression': ref('sheets.l4_cortex_exc.L4ExcL4InhAMPAConnection.delay_expression'),
+        'num_samples_functions' : ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.num_samples_functions'),
+        'num_samples_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.num_samples_expression'),
+        'base_weight':ref('sheets.l4_cortex_exc.NMDA_weight_scaler') * ref('sheets.l4_cortex_exc.L4ExcL4InhAMPAConnection.base_weight'),
+        'annotation_reference_name': ref('sheets.l4_cortex_exc.L4ExcL4InhAMPAConnection.annotation_reference_name'),
+        'samples_coeff' : ref('sheets.l4_cortex_exc.L4_NMDA_factor')*ref('sheets.l4_cortex_exc.inh_NMDA_factor'),
+
+        'num_samples' : (ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.num_samples')+ref('sheets.l4_cortex_exc.L4ExcL4ExcNMDAConnection.num_samples')) * ref('sheets.l4_cortex_exc.inhibitory_connection_ratio')*ref('sheets.l4_cortex_exc.L4_NMDA_factor')* ref('sheets.l4_cortex_exc.inh_NMDA_factor'),
+        'self_connections': ref('sheets.l4_cortex_exc.L4ExcL4ExcAMPAConnection.self_connections'),
+        'local_module': ref('sheets.l4_cortex_exc.L4ExcL4InhAMPAConnection.local_module'),
+},
+    'AfferentMean' : 70,      
+    'AfferentVar' : 25,
+
+    'AfferentAMPAConnection': {
+        'target_synapses': 'AMPA',
+        'aspect_ratio':            0.4,
+        'size':                    0.17,
+        'orientation_preference':  PyNNDistribution(name='uniform',low=0,high=3.141592653589793),
+        'phase':                   PyNNDistribution(name='uniform',low=0,high=6.283185307179586),
+        'frequency':               0.8,
+       
+        'delay_expression': "f1",    
+        'delay_functions' : {
+                                "f1" : {
+                                     'component' : 'mozaik.connectors.modular_connector_functions.PyNNDistributionConnectorFunction',
+                                     'params' : {
+                                                            'pynn_distribution': PyNNDistribution(name='uniform',low=1.4,high=2.4)
+                                                }
+                                }
+                            },
+        'num_samples_functions' : None,
+        'num_samples_expression' : '',
+        'topological' : True,
+        
+        'or_map' : True,
+        'or_map_location' : './or_map_new_16x16',
+        'or_map_stretch' : 3.35,
+        'phase_map' : False,
+        'phase_map_location' : './phase_map',
+        'rf_jitter' : 0,
+        'off_bias' : 1.0,
+        'gauss_coefficient' : 0.085,
+        'base_weight' : 0.0008,
+        'num_samples' : {
+                 'class_name': 'PyNNDistribution',
+                 'params': {
+                         'name': 'uniform',
+                         'low': (ref('sheets.l4_cortex_exc.AfferentMean') - ref('sheets.l4_cortex_exc.AfferentVar'))*(1-ref('sheets.l4_cortex_exc.L4_NMDA_factor')*ref('sheets.l4_cortex_exc.afferent_NMDA_factor')),
+                         'high': (ref('sheets.l4_cortex_exc.AfferentMean') + ref('sheets.l4_cortex_exc.AfferentVar'))*(1-ref('sheets.l4_cortex_exc.L4_NMDA_factor')*ref('sheets.l4_cortex_exc.afferent_NMDA_factor')),
+                     },
+             },
+       
+        'short_term_plasticity': {
+            		            'U': 0.75, 
+            		            'tau_rec': 125.0, 
+            	                'tau_psc': 3.0,
+            		            'tau_fac': 0.0,
+                    },
+
+       'local_module': None,
+    },
+
+    'AfferentNMDAConnection': {
+        'target_synapses' : 'NMDA',
+        'short_term_plasticity': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.short_term_plasticity'),
+        'delay_functions': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.delay_functions'),
+        'delay_expression': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.delay_expression'),
+        'num_samples_functions': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.num_samples_functions'),
+        'num_samples_expression': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.num_samples_expression'),
+        'base_weight': ref('sheets.l4_cortex_exc.NMDA_weight_scaler')* ref('sheets.l4_cortex_exc.AfferentAMPAConnection.base_weight'),
+	
+	'topological' : ref('sheets.l4_cortex_exc.AfferentAMPAConnection.topological'),
+
+        'or_map' : ref('sheets.l4_cortex_exc.AfferentAMPAConnection.or_map'),
+        'or_map_location' : ref('sheets.l4_cortex_exc.AfferentAMPAConnection.or_map_location'),
+        'or_map_stretch' : ref('sheets.l4_cortex_exc.AfferentAMPAConnection.or_map_stretch'),
+        'phase_map' : ref('sheets.l4_cortex_exc.AfferentAMPAConnection.phase_map'),
+        'phase_map_location' : ref('sheets.l4_cortex_exc.AfferentAMPAConnection.phase_map_location'),
+        'rf_jitter' : ref('sheets.l4_cortex_exc.AfferentAMPAConnection.rf_jitter'),
+        'off_bias' : ref('sheets.l4_cortex_exc.AfferentAMPAConnection.off_bias'),
+        'gauss_coefficient' : ref('sheets.l4_cortex_exc.AfferentAMPAConnection.gauss_coefficient'),
+	'aspect_ratio': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.aspect_ratio'),
+        'size': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.size'),
+        'orientation_preference':  ref('sheets.l4_cortex_exc.AfferentAMPAConnection.orientation_preference'),
+        'phase': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.phase'),
+        'frequency': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.frequency'),
+
+        'num_samples' : {
+                     'class_name': 'PyNNDistribution',
+                     'params': {
+                             'name': 'uniform',
+                             'low': (ref('sheets.l4_cortex_exc.AfferentMean') - ref('sheets.l4_cortex_exc.AfferentVar'))*(ref('sheets.l4_cortex_exc.L4_NMDA_factor')*ref('sheets.l4_cortex_exc.afferent_NMDA_factor')),
+                             'high': (ref('sheets.l4_cortex_exc.AfferentMean') + ref('sheets.l4_cortex_exc.AfferentVar'))*(ref('sheets.l4_cortex_exc.L4_NMDA_factor')*ref('sheets.l4_cortex_exc.afferent_NMDA_factor')),
+                         },
+                 },
+	'local_module': ref('sheets.l4_cortex_exc.AfferentAMPAConnection.local_module'),
+	}
+}
