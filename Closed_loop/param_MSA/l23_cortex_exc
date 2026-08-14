@@ -1,5 +1,5 @@
 {
-    'base': url("param_tiny/l23_cortex_exc_old"),
+    'base': url("param_MSA/l23_cortex_exc_old"),
     'component': ref('sheets.l23_cortex_exc.base.component'),
     'params': {
         'name': ref('sheets.l23_cortex_exc.base.params.name'),
@@ -42,10 +42,11 @@
     },
     'layer23_aff_ratio': ref('sheets.l23_cortex_exc.base.layer23_aff_ratio'),
     'feedback_arborization_ratio': ref('sheets.l23_cortex_exc.base.feedback_arborization_ratio'),
+    'L23AfferentConstantScalerDecrement': ref('sheets.l23_cortex_exc.base.L23AfferentConstantScalerDecrement'),
     'K': ref('sheets.l23_cortex_exc.base.K'),
-    'L23ExcL23ExcConnection': url("param_tiny/l23_cortex_exc_old").L23ExcL23ExcConnection,
-    'L23ExcL23InhConnection': url("param_tiny/l23_cortex_exc_old").L23ExcL23InhConnection,
-    'L4ExcL23ExcConnection': url("param_tiny/l23_cortex_exc_old").L4ExcL23ExcConnection,
-    'L23ExcL4ExcConnection': url("param_tiny/l23_cortex_exc_old").L23ExcL4ExcConnection,
-    'L23ExcL4InhConnection': url("param_tiny/l23_cortex_exc_old").L23ExcL4InhConnection,
+    'L23ExcL23ExcConnection': url("param_MSA/l23_cortex_exc_old").L23ExcL23ExcConnection,
+    'L23ExcL23InhConnection': url("param_MSA/l23_cortex_exc_old").L23ExcL23InhConnection,
+    'L4ExcL23ExcConnection': url("param_MSA/l23_cortex_exc_old").L4ExcL23ExcConnection,
+    'L23ExcL4ExcConnection': url("param_MSA/l23_cortex_exc_old").L23ExcL4ExcConnection,
+    'L23ExcL4InhConnection': url("param_MSA/l23_cortex_exc_old").L23ExcL4InhConnection,
 }

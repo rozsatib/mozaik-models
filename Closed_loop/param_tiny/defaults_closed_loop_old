@@ -11,7 +11,7 @@
     'sheets' : {
         'l4_cortex_exc': url("param_tiny/l4_cortex_exc"),
         'l4_cortex_inh': url("param_tiny/l4_cortex_inh"),
-        'l23_cortex_exc': url("param_tiny/l23_cortex_exc"),
+        'l23_cortex_exc': url("param_tiny/l23_cortex_exc_closed_loop_old"),
         'l23_cortex_inh': url("param_tiny/l23_cortex_inh"),
         'retina_lgn': url("param_tiny/SpatioTemporalFilterRetinaLGN_defaults"),
     },

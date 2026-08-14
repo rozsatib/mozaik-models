@@ -9,10 +9,10 @@
                 'mpi_safe' : False,
                 'magnification_factor': ref('sheets.l4_cortex_exc.params.magnification_factor'),
                 'cell': {
-                        'native_nest': False,
                         'model': 'EIF_cond_exp_isfa_ista',
+                        'native_nest': False,
                         'params': {
-                            'v_thresh': -58,
+                            'v_thresh': -56,
                             'v_rest': -78,
                             'v_reset': -60.0,
                             'tau_refrac': 0.5,
@@ -35,7 +35,7 @@
                     },
                 'artificial_stimulators' : ref('sheets.l4_cortex_exc.params.artificial_stimulators'),
                 'recording_interval'  :  ref('sheets.l4_cortex_exc.params.recording_interval'),                                            
-                'recorders' : {},    
+                'recorders' : url("param_MSA/l4_inh_rec"),    
     },
         
     'L4InhL4ExcConnection': {
@@ -43,7 +43,7 @@
 
         'short_term_plasticity': {
 		            'U': 0.75, 
-		            'tau_rec': 70, 
+		            'tau_rec': 30, 
 		            'tau_psc': 3.0,
 		            'tau_fac': 0.0,
                         },
@@ -82,7 +82,7 @@
         'weight_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.weight_expression'),
         'delay_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.delay_expression'),
         'num_samples_expression' : ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.num_samples_expression'),
-        'base_weight': 0.001,
+        'base_weight': 0.002,
         'num_samples' : ref('sheets.l4_cortex_exc.K')/5.0,
         'self_connections': ref('sheets.l4_cortex_exc.L4ExcL4ExcConnection.self_connections'),
         'local_module': None,
