@@ -6,14 +6,14 @@
     },
     'visual_field': {
         'centre': (0.0, 0.0), # degrees (x,y)
-        'size': (7.0, 7.0), # degrees (width, height)
+        'size': (11.0, 11.0), # degrees (width, height)
     },
     'sheets' : {
-        'l4_cortex_exc': url("param_tiny/l4_cortex_exc"),
-        'l4_cortex_inh': url("param_tiny/l4_cortex_inh"),
-        'l23_cortex_exc': url("param_tiny/l23_cortex_exc_closed_loop_old"),
-        'l23_cortex_inh': url("param_tiny/l23_cortex_inh"),
-        'retina_lgn': url("param_tiny/SpatioTemporalFilterRetinaLGN_defaults"),
+        'l4_cortex_exc': url("param_MSA/l4_cortex_exc"),
+        'l4_cortex_inh': url("param_MSA/l4_cortex_inh"),
+        'l23_cortex_exc': url("param_MSA/l23_cortex_exc_basic_old"),
+        'l23_cortex_inh': url("param_MSA/l23_cortex_inh"),
+        'retina_lgn': url("param_MSA/SpatioTemporalFilterRetinaLGN_defaults"),
     },
     'only_afferent' : False,
     'results_dir': '',
@@ -32,7 +32,7 @@
     'trial' : 0,
     'explosion_monitoring': {
        'sheet_name': 'V1_Exc_L4',
-       'threshold': 50, # Hz
+       'threshold': 50,
     },
     'steps_get_data': 0,
 }

@@ -11,7 +11,7 @@
     'sheets' : {
         'l4_cortex_exc': url("param_MSA/l4_cortex_exc"),
         'l4_cortex_inh': url("param_MSA/l4_cortex_inh"),
-        'l23_cortex_exc': url("param_MSA/l23_cortex_exc_closed_loop"),
+        'l23_cortex_exc': url("param_MSA/l23_cortex_exc_basic"),
         'l23_cortex_inh': url("param_MSA/l23_cortex_inh"),
         'retina_lgn': url("param_MSA/SpatioTemporalFilterRetinaLGN_defaults"),
     },

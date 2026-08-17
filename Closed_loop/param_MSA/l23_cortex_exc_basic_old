@@ -35,8 +35,8 @@
             },
         },
         'artificial_stimulators': {
-            'closed_loop_array': {
-                'component': 'mozaik.sheets.direct_stimulator.ClosedLoopOpticalStimulatorArray',
+            'stimulator_array': {
+                'component': 'mozaik.sheets.direct_stimulator.OpticalStimulatorArrayChR',
                 'params': {
                     'size': 1000,
                     'spacing': 10,
@@ -44,7 +44,6 @@
                     'light_source_light_propagation_data': 'light_scattering_radial_profiles_lsd10.pickle',
                     'update_interval': 1,
                     'transfection_proportion': 1.0,
-                    'state_update_interval': 10,
                 },
             },
         },
