@@ -1,0 +1,79 @@
+{
+    'component': 'mozaik.models.vision.spatiotemporalfilter.SpatioTemporalFilterRetinaLGN',
+    'params': {
+        'density': 250, # neurons per degree squared
+        'size'  : (0.1,0.1), # the effective size of the modelled section of retina/lgn
+        'linear_scaler': 6.0,
+        'mpi_reproducible_noise' : False,
+        'cached' : False,
+        'cache_path' : 'retinal_cache/',
+        #'recorders' :  url("param/lgn_rec_stepcurrentmodule"),
+        'recorders' :  url("param/lgn_rec"),
+        'recording_interval'  :  1.0,
+        'receptive_field': {
+            'func': 'cai97.stRF_2d',
+            'func_params': {
+                'Ac': 0.00052060,
+                'As': 0.00002336,
+                'sigma_c': 0.10780073,
+                'sigma_s': 0.48911512,
+                'K1': 3,
+                'K2': 0.37,
+                'c1': 0.61471462,
+                'c2': 0.22824534 * 2 / 3,
+                't1': -44.87613346,
+                't2': -93.08789616 / (2 / 3),
+                # New correct params
+                #'K1': 3,
+                #'K2': 0.37,
+                #'c1': 0.983543392,
+                #'c2': 0.365192544,
+                #'t1': -71.801813536,
+                #'t2': -148.940633856,
+                'n1': 46.84962684,
+                'n2': 44.70041180,
+                'td': 8.86454539,
+                't_msc': 1, # Magnitude scaler
+                't_lsc': 0.6, # length scaler
+                #'t_lsc': 1, # length scaler
+                's_sc': 1, # Size scaler
+                'subtract_mean': False,
+                'normalize_abs_sum': True,
+            },
+            'width': 2.5, # degrees
+            'height': 2.5, # degrees
+            'spatial_resolution': 0.025, # degrees
+            'temporal_resolution': 1.75,#1, # ms
+            'duration': 200,
+            #'ideal_sf': 0.8,
+            #'ideal_tf': 5.3,
+            #'ideal_sf_tf_resp_amplitude'
+        },
+
+        'gain_control' : {
+            'gain': 12,
+            'non_linear_gain' : {
+                'contrast_gain': 0.11,
+                'contrast_scaler': 0.0002,
+                'luminance_gain_ON': 0.018,
+                'luminance_scaler_ON': 2e-10,
+                'luminance_gain_OFF': 0.0115,
+                'luminance_scaler_OFF': 1e-10,
+            },
+        },
+
+        #'cell' : url("param/cell_stepcurrentmodule"),
+        'cell' : url("param/cell"),
+
+        'noise': {
+            'X_ON': {
+                'mean': 0.66,
+                'stdev': 0.975,
+            },
+            'X_OFF': {
+                'mean': 0.66,
+                'stdev': 1.25,
+            },
+        }
+    }
+}

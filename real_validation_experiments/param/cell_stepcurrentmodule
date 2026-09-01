@@ -1,0 +1,22 @@
+{
+    'model': 'aeif_cond_exp_sc_nc',
+    'native_nest':True,
+    'params': {
+        'C_m'         : 454.8672566371681,   # pF, tot membrane capacitance (calculated from input resistance)
+        't_ref' : 2.7,   # ms, refractory period (ReinagelReid2000)
+        'Delta_T'    : 1,     # mV (Lo 1990 fit)
+        'V_peak'    : 30.0,  # mV
+        'V_th'   : -51,   # mV (Lo 1990 fit)
+        'g_L' : 454.8672566371681 / 10.28, # C_m / 10.28 ms membrane time constant (Bloomfield 1987)
+        'E_L'     : -60.0, # mV (Bloomfield 1987)
+        'V_reset'    : -52,   # mV (Lo 1990 fit)
+        'a'          : 40,    # nS (Lo 1990 fit)
+        'b'          : 50,  # pA Lo 1990 fit
+        'tau_w'      : 150,   # ms Lo 1990 fit
+        'tau_syn_ex'  : 5.,    # ms (not used)
+        'tau_syn_in'  : 10.0,  # ms (not used)
+    },
+    'initial_values': {
+        'v': -50.0,
+    }
+}
