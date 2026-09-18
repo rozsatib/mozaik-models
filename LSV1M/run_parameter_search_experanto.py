@@ -139,8 +139,13 @@ class RandomizedExperantoSearch(ParameterSearch):
         datastores that were simulated from the previous contents.
         """
         self.master_dir = os.path.abspath(master_directory)
-        if self.chunk_dir is None:
-            self.chunk_dir = os.path.join(self.master_dir, "chunks")
+        # Absolute, because RandomizedExperanto joins the chunk path onto base_path: an
+        # absolute path wins that join, a relative one is looked for inside the dataset.
+        self.chunk_dir = (
+            os.path.join(self.master_dir, "chunks")
+            if self.chunk_dir is None
+            else os.path.abspath(self.chunk_dir)
+        )
 
         if self._chunk_lists_present():
             print("Reusing chunk lists in %s" % self.chunk_dir)

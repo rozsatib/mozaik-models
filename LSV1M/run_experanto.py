@@ -24,7 +24,7 @@ chunk lists, submits one job per (trial, chunk), and queues the exports behind t
 Environment
 -----------
 TRIAL, CHUNK   Which chunk to simulate; selects {CHUNK_DIR}/{TRIAL}_{CHUNK}.json.
-CHUNK_DIR      Directory holding the chunk lists. Must be absolute.
+CHUNK_DIR      Directory holding the chunk lists.
 BASE_PATH      Experanto screen dataset the stimuli are read from; defaults to
                DEFAULT_BASE_PATH below. Must be the dataset the chunk lists were built from.
 SHEET_NAMES    Comma-separated sheets to export with --export; unset means all recorded ones.
@@ -65,7 +65,9 @@ def selected_chunk():
     """Return the (trial, chunk, chunk_path) this job was asked to simulate."""
     trial = int(os.environ.get("TRIAL", 0))
     chunk = int(os.environ.get("CHUNK", 0))
-    chunk_dir = os.environ.get("CHUNK_DIR", "[PATH_TO_CHUNKS]")
+    # Absolute, because RandomizedExperanto joins this onto base_path: an absolute path wins
+    # that join, a relative one is looked for inside the dataset.
+    chunk_dir = os.path.abspath(os.environ.get("CHUNK_DIR", "[PATH_TO_CHUNKS]"))
     return trial, chunk, os.path.join(chunk_dir, "%d_%d.json" % (trial, chunk))
 
 
