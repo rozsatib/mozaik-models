@@ -1,6 +1,10 @@
 {
-    'component': 'mozaik.models.vision.spatiotemporalfilter.SpatioTemporalFilterRetinaLGN',
+    'component': 'mozaik.models.vision.uniform_lgn.UniformSpatioTemporalFilterRetinaLGN',
     'params': {
+        # 'uniform': scale one for every cell; 'lognormal': canonical distribution;
+        # 'custom': edit custom() in mozaik/models/vision/lgn_temporal_scales.py.
+        'temporal_scale_mode': 'uniform',
+        'temporal_scale': 1.0, # positive multiplier; larger means slower
         'density': 200, # neurons per degree squared
         'size'  : (6.0,6.0), # the effective size of the modelled section of retina/lgn
         'linear_scaler': 6.0,
